@@ -56,6 +56,7 @@ sf=Frame(fen)
 sf.pack(side=RIGHT)
 lab=Label(sf,text="")
 lab.pack()
+fen.config(bg="bisque")
 
 lstbtn=[]
 lstbtn.append(Button(sf,text="Nouveau point",command=nvpts))
