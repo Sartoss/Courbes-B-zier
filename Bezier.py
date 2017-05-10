@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter.ttk import Combobox
 from math import sqrt,factorial as fact
+from functools import partial
 
 def f(liste):
     if sqrt((liste[0][0]-liste[-1][0])**2+(liste[0][1]-liste[-1][1])**2)<1:
@@ -15,15 +16,15 @@ def f(liste):
     return(f(l1)+f(l2))
 
 def affiche(liste):
-    points=f(liste)
-    can.coords(1,points)
+    global can
+    can.coords(1,f(liste))
 
-def clique(event):
+def clique(rayon,liste,event):
+    global select
     x=event.x
     y=event.y
     for i in range(len(liste)):
-        if sqrt((liste[i][0]-x)**2+(liste[i][1]-y)**2)<=10:
-            global select
+        if sqrt((liste[i][0]-x)**2+(liste[i][1]-y)**2)<=rayon:
             select=i
             break
 
@@ -31,18 +32,21 @@ def relache(event):
     global select
     select=None
 
-def deplacement(event):
+def deplacement(rayon,liste,lab,event):
+    global can
     global select
     if select==None:return
     x=event.x
     y=event.y
     lab.config(text="x,y="+str(x)+" , "+str(y)+" "+str(select))
     liste[select]=(x,y)
-    can.coords(select+2,x-10,y-10,x+10,y+10)
+    can.coords(select+2,x-rayon,y-rayon,x+rayon,y+rayon)
     affiche(liste)
 
-def nvpts():
+def nvpts(liste):
+    global can
     can.create_oval(240,240,260,260,fill="yellow",outline="red",width=2)
+    can.tag_raise(1,ALL)
     liste.append((250,250))
     for i in range(len(liste)):
         liste[i]=(liste[i][0],liste[i][1])
@@ -64,7 +68,7 @@ sf.grid(row=0,column=1)
 lab=Label(sf,text="x,y=...")
 lab.pack()
 
-boutton=Button(sf,text="Nouveau point",command=nvpts)
+boutton=Button(sf,text="Nouveau point",command=partial(nvpts,liste))
 boutton.pack()
 
 can=Canvas(height=H,width=W,bg="white")
@@ -75,9 +79,10 @@ can.create_line(points,fill="blue",width=2)
 
 for i in range(len(liste)):
     can.create_oval(liste[i][0]-rayon,liste[i][1]-rayon,liste[i][0]+rayon,liste[i][1]+rayon,fill="yellow",outline="red",width=2)
+can.tag_raise(1,ALL)
 
-can.bind("<ButtonPress-1>",clique)
+can.bind("<ButtonPress-1>",partial(clique,rayon,liste))
 can.bind("<ButtonRelease-1>",relache)
-can.bind("<B1-Motion>",deplacement)
+can.bind("<B1-Motion>",partial(deplacement,rayon,liste,lab))
 
 fen.mainloop()
