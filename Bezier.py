@@ -1,10 +1,17 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Thu May 11 09:39:03 2017
+
+@author: piroulasau
+"""
+
 from tkinter import *
 from tkinter.ttk import Combobox
 from math import sqrt,factorial as fact
 from functools import partial
 
 def f(liste):
-    if sqrt((liste[0][0]-liste[-1][0])**2+(liste[0][1]-liste[-1][1])**2)<1:
+    if sqrt((liste[0][0]-liste[-1][0])**2+(liste[0][1]-liste[-1][1])**2)<=2:
         return(liste[0][0],liste[0][1])
     l1=liste.copy()
     l2=liste.copy()
@@ -16,73 +23,185 @@ def f(liste):
     return(f(l1)+f(l2))
 
 def affiche(liste):
+    #print(liste)
     global can
-    can.coords(1,f(liste))
+    can.coords(1,f([(i[0].get(),i[1].get()) for i in liste]))
 
-def clique(rayon,liste,event):
-    global select
+def clique(event):
     x=event.x
     y=event.y
     for i in range(len(liste)):
-        if sqrt((liste[i][0]-x)**2+(liste[i][1]-y)**2)<=rayon:
-            select=i
+        if sqrt((liste[i][0].get()-x)**2+(liste[i][1].get()-y)**2)<=10:
+            global select
+            select.set(indic[i])
             break
-
 def relache(event):
     global select
-    select=None
-
-def deplacement(rayon,liste,lab,event):
-    global can
-    global select
-    if select==None:return
+    select.set(0)
+    
+def deplacement(event):
+    if select.get()==0:return
     x=event.x
     y=event.y
-    lab.config(text="x,y="+str(x)+" , "+str(y)+" "+str(select))
-    liste[select]=(x,y)
-    can.coords(select+2,x-rayon,y-rayon,x+rayon,y+rayon)
+    #lab.config(text="x,y="+str(x)+" , "+str(y)+" "+str(select.get()))
+    liste[indic.index(select.get())][0].set(x)
+    liste[indic.index(select.get())][1].set(y)
+    can.coords(select.get(),x-10,y-10,x+10,y+10)
     affiche(liste)
 
-def nvpts(liste):
-    global can
-    can.create_oval(240,240,260,260,fill="yellow",outline="red",width=2)
-    can.tag_raise(1,ALL)
-    liste.append((250,250))
+    
+def nvpts(x,y):
+    global rayon
+    indic.append(can.create_oval(x.get()-rayon,y.get()-rayon,x.get()+rayon,y.get()+rayon))
+    can.itemconfig(indic[-1],fill="yellow",outline="red",width=2)
+    liste.append((DoubleVar(),DoubleVar()))
+    liste[-1][0].set(x.get())
+    liste[-1][1].set(y.get())
+
     for i in range(len(liste)):
-        liste[i]=(liste[i][0],liste[i][1])
+        liste[i]=(liste[i][0],liste[i][1],fact(len(liste)-1)//(fact(i)*fact(len(liste)-i-1)))
+    affiche(liste)
+       
+    lstpts.append([])
+    lstpts[-1].append(Label(ListePoints,text="Point "+str(indic[-1]-1)+" : x="))
+    lstpts[-1][-1].grid(row=indic[-1],column=1)
+    
+    lstpts[-1].append(Entry(ListePoints,textvariable=liste[-1][0],width=5))
+    lstpts[-1][-1].grid(row=indic[-1],column=2)
+    
+    lstpts[-1].append(Label(ListePoints,text=" y="))
+    lstpts[-1][-1].grid(row=indic[-1],column=3)
+    
+    lstpts[-1].append(Entry(ListePoints,textvariable=liste[-1][1],width=5))
+    lstpts[-1][-1].grid(row=indic[-1],column=4)
+
+    lstpts[-1].append(Button(ListePoints,text="X",command=partial(supprime,indic[-1]),padx=5))
+    lstpts[-1][-1].grid(row=indic[-1],column=5)
+
+def supprime(n):
+    m=indic.index(n)
+    del(liste[m])
+    
+    can.delete(n)
+    indic.remove(n)
+    for i in range(4,-1,-1):
+        lstpts[m][i].destroy()
+    del(lstpts[m])
     affiche(liste)
 
-H=500
-W=500
+
+
+global rayon    
 rayon=10
 
-liste=[(10,10),(10,H-10),(W-10,10),(W-10,H-10)]
 
 fen=Tk()
-fen.config(bg="bisque")
-fen.title("Courbe de bézier")
+fen.title('Curve drawer')
+fen['bg']='bisque'
 
-sf=Frame(fen)
-sf.grid(row=0,column=1)
+FrameCanvas=Frame(fen,padx=5,pady=5,bg='bisque')
+FrameCanvas.grid(row=0,column=0)
 
-lab=Label(sf,text="x,y=...")
-lab.pack()
+can=Canvas(FrameCanvas,height=500,width=500,bg="white")
+can.grid()
 
-boutton=Button(sf,text="Nouveau point",command=partial(nvpts,liste))
-boutton.pack()
+Framesettings = Frame()
+Framesettings.grid(row=0,column=1)
 
-can=Canvas(height=H,width=W,bg="white")
-can.grid(row=0,column=0)
+Ajoutpoint=LabelFrame(Framesettings,text="Ajouter un nouveau point", padx=5)
+Ajoutpoint.grid(row=0)
 
-points=f(liste)
-can.create_line(points,fill="blue",width=2)
+ajouteX = Label(Ajoutpoint, text = 'X=', fg = 'black', justify='center', padx=5, pady=5)
+ajouteX.grid(row=0,column=0)
 
-for i in range(len(liste)):
-    can.create_oval(liste[i][0]-rayon,liste[i][1]-rayon,liste[i][0]+rayon,liste[i][1]+rayon,fill="yellow",outline="red",width=2)
-can.tag_raise(1,ALL)
+x=IntVar()
+x.set(250)
 
-can.bind("<ButtonPress-1>",partial(clique,rayon,liste))
+EntreeX = Entry(Ajoutpoint,textvariable=x)
+EntreeX.grid(row=0,column=1)
+
+ajouteY = Label(Ajoutpoint, text = 'Y=', fg = 'black', justify='center', padx=5, pady=5)
+ajouteY.grid(row=1,column=0)
+
+y=IntVar()
+y.set(250)
+
+EntreeY = Entry(Ajoutpoint,textvariable=y)
+EntreeY.grid(row=1,column=1)
+
+Valider=Button(Ajoutpoint, text = 'Valider!',command=lambda:nvpts(x,y))
+Valider.grid(row=2,column=1)
+
+liste=[]
+for i in range(4):
+    liste.append((DoubleVar(),DoubleVar()))
+liste[0][0].set(100)
+liste[0][1].set(0)
+liste[1][0].set(200)
+liste[1][1].set(500)
+liste[2][0].set(300)
+liste[2][1].set(250)
+liste[3][0].set(500)
+liste[3][1].set(100)
+
+indic=[2,3,4,5]
+liste=[(liste[i][0],liste[i][1],fact(len(liste)-1)//(fact(i)*fact(len(liste)-i-1))) for i in range(len(liste))]
+
+ListePoints=Frame(Framesettings, padx=5, pady=5)
+ListePoints.grid(row=1)
+
+lstpts=[]
+    
+for i in range(2,len(liste)+2):
+    lstpts.append([])
+    lstpts[-1].append(Label(ListePoints,text="Point "+str(i-1)+" : x="))
+    lstpts[-1][-1].grid(row=i,column=1)
+    
+    lstpts[-1].append(Entry(ListePoints,textvariable=liste[i-2][0],width=5))
+    lstpts[-1][-1].grid(row=i,column=2)
+    
+    lstpts[-1].append(Label(ListePoints,text=" y="))
+    lstpts[-1][-1].grid(row=i,column=3)
+    
+    lstpts[-1].append(Entry(ListePoints,textvariable=liste[i-2][1],width=5))
+    lstpts[-1][-1].grid(row=i,column=4)
+
+    lstpts[-1].append(Button(ListePoints,text="X",command=partial(supprime,i)))
+    lstpts[-1][-1].grid(row=i,column=5)
+
+    
+var=IntVar()
+Traitscons=Checkbutton(Framesettings, text="Traits de construction ?", variable=var, pady=5)
+Traitscons.grid(row=2)
+
+FramePreci=Frame(Framesettings, pady=5)
+FramePreci.grid(row=3)
+
+Label1=Label(FramePreci,text="Précision de la courbe:")
+Label1.grid(column=0,row=0)
+
+ChoixPreci=Entry(FramePreci, width=10)
+ChoixPreci.grid(column=1,row=0)
+
+FrameCurvType=LabelFrame(Framesettings,text="Type de courbe désirée")
+FrameCurvType.grid(row=4)
+
+CurvType = IntVar()
+Radiobutton(FrameCurvType, text="Bézier", variable=CurvType, value=1).grid(row=0)
+Radiobutton(FrameCurvType, text="Type2", variable=CurvType, value=2).grid(row=1)
+
+can.create_line(f([(i[0].get(),i[1].get()) for i in liste]),fill="blue",width=2)
+
+for i in liste:
+    can.create_oval(i[0].get()-rayon,i[1].get()-rayon,i[0].get()+rayon,i[1].get()+rayon)
+    can.itemconfig(liste.index(i)+2,fill="yellow",outline="red",width=2)
+
+
+select=IntVar()
+select.set(0)
+
+can.bind("<ButtonPress-1>",clique)
 can.bind("<ButtonRelease-1>",relache)
-can.bind("<B1-Motion>",partial(deplacement,rayon,liste,lab))
+can.bind("<B1-Motion>",deplacement)
 
 fen.mainloop()
