@@ -1,6 +1,8 @@
 from tkinter import *
 from tkinter.ttk import Combobox
 from math import sqrt,factorial as fact
+from functools import partial
+
 
 def f(t,liste):
     n=len(liste)
@@ -52,31 +54,35 @@ def nvpts():
         liste[i]=(liste[i][0],liste[i][1],fact(len(liste)-1)//(fact(i)*fact(len(liste)-i-1)))
     affiche(liste,0.01,100)
     
-    lstpts.append(Label(ssf,text="Point "+str(len(liste))+" : x="))
-    lstpts[-1].grid(row=len(liste),column=1)
+    print(len(liste))    
+    lstpts.append([])
+    lstpts[-1].append(Label(ssf,text="Point "+str(indic[-1]-1)+" : x="))
+    lstpts[-1][-1].grid(row=indic[-1],column=1)
     
-    lstpts.append(Entry(ssf,textvariable=liste[-1][0],width=5))
-    lstpts[-1].grid(row=len(liste),column=2)
+    lstpts[-1].append(Entry(ssf,textvariable=liste[-1][0],width=5))
+    lstpts[-1][-1].grid(row=indic[-1],column=2)
     
-    lstpts.append(Label(ssf,text=" y="))
-    lstpts[-1].grid(row=len(liste),column=3)
+    lstpts[-1].append(Label(ssf,text=" y="))
+    lstpts[-1][-1].grid(row=indic[-1],column=3)
     
-    lstpts.append(Entry(ssf,textvariable=liste[-1][1],width=5))
-    lstpts[-1].grid(row=len(liste),column=4)
+    lstpts[-1].append(Entry(ssf,textvariable=liste[-1][1],width=5))
+    lstpts[-1][-1].grid(row=indic[-1],column=4)
 
-    lstpts.append(Button(ssf,text="X",command=lambda:supprime(len(liste))))
-    lstpts[-1].grid(row=len(liste),column=5)
+    lstpts[-1].append(Button(ssf,text="X",command=partial(supprime,indic[-1])))
+    lstpts[-1][-1].grid(row=indic[-1],column=5)
 
 def supprime(n):
     print(n)
-    del(liste[n-1])
+    m=indic.index(n)
+    del(liste[m])
     for i in range(len(liste)):
         liste[i]=(liste[i][0],liste[i][1],fact(len(liste)-1)//(fact(i)*fact(len(liste)-i-1)))
-    can.delete(indic[n-1])
-    del(indic[n-1])
-    for i in range(5):
-        lstpts[5*n-5].destroy()
-        del(lstpts[5*(n-1)])
+    can.delete(n)
+    indic.remove(n)
+    
+    for i in range(4,-1,-1):
+        lstpts[m][i].destroy()
+    del(lstpts[m])
     affiche(liste,0.01,coeff)
     
         
@@ -115,21 +121,22 @@ lstpts=[]
 ssf=Frame(sf)
 ssf.pack()
 
-for i in range(1,len(liste)+1):
-    lstpts.append(Label(ssf,text="Point "+str(i)+" : x="))
-    lstpts[-1].grid(row=i,column=1)
+for i in range(2,len(liste)+2):
+    lstpts.append([])
+    lstpts[-1].append(Label(ssf,text="Point "+str(i-1)+" : x="))
+    lstpts[-1][-1].grid(row=i,column=1)
     
-    lstpts.append(Entry(ssf,textvariable=liste[i-1][0],width=5))
-    lstpts[-1].grid(row=i,column=2)
+    lstpts[-1].append(Entry(ssf,textvariable=liste[i-2][0],width=5))
+    lstpts[-1][-1].grid(row=i,column=2)
     
-    lstpts.append(Label(ssf,text=" y="))
-    lstpts[-1].grid(row=i,column=3)
+    lstpts[-1].append(Label(ssf,text=" y="))
+    lstpts[-1][-1].grid(row=i,column=3)
     
-    lstpts.append(Entry(ssf,textvariable=liste[i-1][1],width=5))
-    lstpts[-1].grid(row=i,column=4)
+    lstpts[-1].append(Entry(ssf,textvariable=liste[i-2][1],width=5))
+    lstpts[-1][-1].grid(row=i,column=4)
 
-    lstpts.append(Button(ssf,text="X",command=lambda:supprime(i  )))
-    lstpts[-1].grid(row=i,column=5)
+    lstpts[-1].append(Button(ssf,text="X",command=partial(supprime,i)))
+    lstpts[-1][-1].grid(row=i,column=5)
 
 coeff=100#IntVar()
 #coeff.set(100)
