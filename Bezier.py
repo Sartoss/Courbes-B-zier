@@ -113,7 +113,7 @@ def nvpts(x,y):
     lstpts[-1].append(Entry(ListePoints,textvariable=liste[-1][1],width=5))
     lstpts[-1][-1].grid(row=indic[-1],column=4)
 
-    lstpts[-1].append(Button(ListePoints,text="X",command=partial(supprime,indic[-1]),padx=5))
+    lstpts[-1].append(Button(ListePoints,text="X",command=partial(supprime,indic[-1])))
     lstpts[-1][-1].grid(row=indic[-1],column=5)
 
 def supprime(n):
