@@ -102,8 +102,8 @@ def relache(event):
     
 def deplacement(event):
     if select.get()==0:return
-    x=event.x
-    y=event.y
+    x=min(max(event.x,0),500)
+    y=min(max(event.y,0),500)
     #lab.config(text="x,y="+str(x)+" , "+str(y)+" "+str(select.get()))
     liste[indic.index(select.get())][0].set(x)
     liste[indic.index(select.get())][1].set(y)
