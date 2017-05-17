@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed May 17 11:17:41 2017
+
+@author: piroulasau
+"""
+
 from tkinter import *
 from tkinter.ttk import Combobox
 from math import sqrt,factorial as fact
@@ -211,10 +218,6 @@ for i in range(2,len(liste)+2):
     lstpts[-1].append(Button(ListePoints,text="X",command=partial(supprime,i)))
     lstpts[-1][-1].grid(row=i,column=5)
 
-    
-var=IntVar()
-Traitscons=Checkbutton(Framesettings, text="Traits de construction ?", variable=var, pady=5)
-Traitscons.grid(row=2)
 
 FramePreci=Frame(Framesettings, pady=5)
 FramePreci.grid(row=3)
@@ -232,6 +235,13 @@ CurvType = IntVar()
 CurvType.set(0)
 Radiobutton(FrameCurvType, text="Bézier", variable=CurvType, value=0, command=changeType).grid(row=0)
 Radiobutton(FrameCurvType, text="Spline", variable=CurvType, value=1, command=changeType).grid(row=1)
+
+FrameSpline=Frame(Framesettings,pady=5)
+FrameSpline.grid(row=5)
+
+varBoucle=IntVar()
+Traitscons=Checkbutton(FrameSpline, text="Courbe fermée ?", variable=varBoucle, pady=5)
+Traitscons.grid()
 
 can.create_line(fBezier([(i[0].get(),i[1].get()) for i in liste]),fill="blue",width=2)
 
