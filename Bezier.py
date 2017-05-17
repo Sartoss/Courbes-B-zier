@@ -135,7 +135,11 @@ def supprime(n):
     affiche(liste)
 
 def changeType():
-	affiche(liste)
+    if CurvType.get()==1:
+        FrameSpline.grid(row=5)
+    else:
+        FrameSpline.grid_forget()
+    affiche(liste)
 
 global rayon
 global fonction
@@ -237,7 +241,6 @@ Radiobutton(FrameCurvType, text="Bézier", variable=CurvType, value=0, command=c
 Radiobutton(FrameCurvType, text="Spline", variable=CurvType, value=1, command=changeType).grid(row=1)
 
 FrameSpline=Frame(Framesettings,pady=5)
-FrameSpline.grid(row=5)
 
 varBoucle=IntVar()
 Traitscons=Checkbutton(FrameSpline, text="Courbe fermée ?", variable=varBoucle, pady=5)
