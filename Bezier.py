@@ -153,8 +153,10 @@ def supprime(n):
 def changeType():
     if CurvType.get()==1:
         FrameSpline.grid(row=5)
+        Entrydegre["state"]="disabled"
     else:
         FrameSpline.grid_forget()
+        Entrydegre["state"]="normal"
     affiche(liste)
 
 global rayon
@@ -174,8 +176,8 @@ FrameCanvas.grid(row=0,column=0)
 can=Canvas(FrameCanvas,height=500,width=500,bg="white")
 can.grid()
 
-Framesettings = Frame()
-Framesettings.grid(row=0,column=1)
+Framesettings = Frame(fen)
+Framesettings.grid(row=0,column=1,sticky="n",pady=5,padx=5)
 
 Ajoutpoint=LabelFrame(Framesettings,text="Ajouter un nouveau point", padx=5)
 Ajoutpoint.grid(row=0)
@@ -248,6 +250,14 @@ Label1.grid(column=0,row=0)
 ChoixPreci=Entry(FramePreci, width=10)
 ChoixPreci.grid(column=1,row=0)
 
+Label2=Label(FramePreci, text="Degré de la courbe: ")
+Label2.grid(column=0,row=1)
+
+Entrydegre=Entry(FramePreci, width=10)
+Entrydegre.insert(0,"3")
+Entrydegre.grid(row=1,column=1)
+
+
 FrameCurvType=LabelFrame(Framesettings,text="Type de courbe désirée")
 FrameCurvType.grid(row=4)
 
@@ -259,7 +269,7 @@ Radiobutton(FrameCurvType, text="Spline", variable=CurvType, value=1, command=ch
 FrameSpline=Frame(Framesettings,pady=5)
 
 varBoucle=IntVar()
-Traitscons=Checkbutton(FrameSpline, text="Courbe fermée ?", variable=varBoucle, pady=5, command=changeType)
+Traitscons=Checkbutton(FrameSpline, text="Courbe fermée ?", variable=varBoucle, pady=5,command=changeType)
 Traitscons.grid()
 
 can.create_line(fBezier([(i[0].get(),i[1].get()) for i in liste]),fill="blue",width=2)
