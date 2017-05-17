@@ -1,14 +1,8 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed May 17 11:17:41 2017
-
-@author: piroulasau
-"""
-
 from tkinter import *
 from tkinter.ttk import Combobox
 from math import sqrt,factorial as fact
 from functools import partial
+from tkinter import messagebox
 
 def fBezier(liste):
     if sqrt((liste[0][0]-liste[-1][0])**2+(liste[0][1]-liste[-1][1])**2)<=2:
@@ -94,6 +88,9 @@ def affiche(liste):
 def clique(event):
     x=event.x
     y=event.y
+    while []!=menu:
+        menu[0].destroy()
+        del(menu[0])
     for i in range(len(liste)):
         if sqrt((liste[i][0].get()-x)**2+(liste[i][1].get()-y)**2)<=10:
             global select
@@ -114,13 +111,15 @@ def deplacement(event):
     affiche(liste)
 
 def nvpts(x,y):
+    if type(x)==IntVar:x=x.get()
+    if type(y)==IntVar:y=y.get()
     global rayon
     degree.set(len(liste))
-    indic.append(can.create_oval(x.get()-rayon,y.get()-rayon,x.get()+rayon,y.get()+rayon))
+    indic.append(can.create_oval(x-rayon,y-rayon,x+rayon,y+rayon))
     can.itemconfig(indic[-1],fill="yellow",outline="red",width=2)
     liste.append((DoubleVar(),DoubleVar()))
-    liste[-1][0].set(x.get())
-    liste[-1][1].set(y.get())
+    liste[-1][0].set(x)
+    liste[-1][1].set(y)
 
     for i in range(len(liste)):
         liste[i]=(liste[i][0],liste[i][1],fact(len(liste)-1)//(fact(i)*fact(len(liste)-i-1)))
@@ -157,14 +156,31 @@ def supprime(n):
         if CurvType.get()==0:
             degree.set(len(liste)-1)
         affiche(liste)
+    else:
+        messagebox.showerror("Erreur","Il ne peut pas y avoir moins de deux points")
+
+def clicdrt(event):
+    x=event.x
+    y=event.y
+    while []!=menu:
+        menu[0].destroy()
+        del(menu[0])
+    menu.append(Menu(can,tearoff=0))
+    menu[0].add_command(label="Ajouter un point",command=partial(nvpts,x,y))
+    for i in range(len(liste)):
+        if sqrt((liste[i][0].get()-x)**2+(liste[i][1].get()-y)**2)<=10:
+            menu[0].add_command(label="Supprimer le point "+str(indic[i]-1),command=partial(supprime,indic[i]))
+    menu[0].post(event.x_root,event.y_root)
 
 def changeType():
     if CurvType.get()==1:
         FrameSpline.grid(row=5)
         Entrydegre["state"]="normal"
+        degree.set(3)
     else:
         FrameSpline.grid_forget()
         Entrydegre["state"]="disabled"
+        degree.set(len(liste)-1)
     affiche(liste)
 
 global rayon
@@ -293,5 +309,7 @@ select.set(0)
 can.bind("<ButtonPress-1>",clique)
 can.bind("<ButtonRelease-1>",relache)
 can.bind("<B1-Motion>",deplacement)
+menu=[]
+can.bind("<ButtonPress-3>",clicdrt)
 
 fen.mainloop()
