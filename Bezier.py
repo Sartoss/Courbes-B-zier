@@ -115,6 +115,7 @@ def deplacement(event):
 
 def nvpts(x,y):
     global rayon
+    degree.set(len(liste))
     indic.append(can.create_oval(x.get()-rayon,y.get()-rayon,x.get()+rayon,y.get()+rayon))
     can.itemconfig(indic[-1],fill="yellow",outline="red",width=2)
     liste.append((DoubleVar(),DoubleVar()))
@@ -140,25 +141,30 @@ def nvpts(x,y):
 
     lstpts[-1].append(Button(ListePoints,text="X",command=partial(supprime,indic[-1])))
     lstpts[-1][-1].grid(row=indic[-1],column=5)
+    
 
 def supprime(n):
-    m=indic.index(n)
-    del(liste[m])
+    if len(liste)>2:
     
-    can.delete(n)
-    indic.remove(n)
-    for i in range(4,-1,-1):
-        lstpts[m][i].destroy()
-    del(lstpts[m])
-    affiche(liste)
+        m=indic.index(n)
+        del(liste[m])
+    
+        can.delete(n)
+        indic.remove(n)
+        for i in range(4,-1,-1):
+            lstpts[m][i].destroy()
+        del(lstpts[m])
+        if CurvType.get()==0:
+            degree.set(len(liste)-1)
+        affiche(liste)
 
 def changeType():
     if CurvType.get()==1:
         FrameSpline.grid(row=5)
-        Entrydegre["state"]="disabled"
+        Entrydegre["state"]="normal"
     else:
         FrameSpline.grid_forget()
-        Entrydegre["state"]="normal"
+        Entrydegre["state"]="disabled"
     affiche(liste)
 
 global rayon
@@ -255,8 +261,9 @@ ChoixPreci.grid(column=1,row=0)
 Label2=Label(FramePreci, text="Degré de la courbe: ")
 Label2.grid(column=0,row=1)
 
-Entrydegre=Entry(FramePreci, width=10)
-Entrydegre.insert(0,"3")
+degree=StringVar()
+degree.set(3)
+Entrydegre=Entry(FramePreci, width=10,textvariable=degree,state="disabled")
 Entrydegre.grid(row=1,column=1)
 
 
@@ -271,8 +278,8 @@ Radiobutton(FrameCurvType, text="Spline", variable=CurvType, value=1, command=ch
 FrameSpline=Frame(Framesettings,pady=5)
 
 varBoucle=IntVar()
-Traitscons=Checkbutton(FrameSpline, text="Courbe fermée ?", variable=varBoucle, pady=5,command=changeType)
-Traitscons.grid()
+Courbefermee=Checkbutton(FrameSpline, text="Courbe fermée ?", variable=varBoucle, pady=5,command=changeType)
+Courbefermee.grid()
 
 can.create_line(fBezier([(i[0].get(),i[1].get()) for i in liste]),fill="blue",width=2)
 
