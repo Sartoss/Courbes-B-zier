@@ -23,6 +23,8 @@ def fBezier(liste):
     return(fBezier(l1)+fBezier(l2))
 
 def fSpline(liste):
+    if len(liste)==2:
+        return(liste[0][0],liste[0][1],liste[1][0],liste[1][1])
     points=[]
     if varBoucle.get()==1:
         for i in range(-2,len(liste)-2):
