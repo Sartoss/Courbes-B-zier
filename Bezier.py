@@ -94,20 +94,20 @@ def clique(event):
     for i in range(len(liste)):
         if sqrt((liste[i][0].get()-x)**2+(liste[i][1].get()-y)**2)<=10:
             global select
-            select.set(indic[i])
+            select.set(i)
             break
 def relache(event):
     global select
-    select.set(0)
+    select.set(-1)
     
 def deplacement(event):
-    if select.get()==0:return
+    if select.get()==-1:return
     x=min(max(event.x,0),500)
     y=min(max(event.y,0),500)
     #lab.config(text="x,y="+str(x)+" , "+str(y)+" "+str(select.get()))
-    liste[indic.index(select.get())][0].set(x)
-    liste[indic.index(select.get())][1].set(y)
-    can.coords(select.get(),x-10,y-10,x+10,y+10)
+    liste[select.get()][0].set(x)
+    liste[select.get()][1].set(y)
+    can.coords(indic[select.get()][0],x-10,y-10,x+10,y+10)
     affiche(liste)
 
 def nvpts(x,y):
@@ -115,41 +115,47 @@ def nvpts(x,y):
     if type(y)==IntVar:y=y.get()
     global rayon
     degree.set(len(liste))
-    indic.append(can.create_oval(x-rayon,y-rayon,x+rayon,y+rayon))
-    can.itemconfig(indic[-1],fill="yellow",outline="red",width=2)
-    liste.append((DoubleVar(),DoubleVar()))
+    indic.append((can.create_oval(x-rayon,y-rayon,x+rayon,y+rayon,fill="yellow",outline="red",width=2),can.create_oval(x-50-rayonTan,y-rayonTan,x-50+rayonTan,y+rayonTan),can.create_oval(x+50-rayonTan,y-rayonTan,x+50+rayonTan,y+rayonTan)))
+    #can.itemconfig(indic[-1][0],fill="yellow",outline="red",width=2)
+    liste.append((DoubleVar(),DoubleVar(),DoubleVar(),DoubleVar(),DoubleVar(),DoubleVar()))
     liste[-1][0].set(x)
     liste[-1][1].set(y)
+    liste[-1][2].set(-50)
+    liste[-1][3].set(0)
+    liste[-1][4].set(50)
+    liste[-1][5].set(0)
 
-    for i in range(len(liste)):
-        liste[i]=(liste[i][0],liste[i][1],fact(len(liste)-1)//(fact(i)*fact(len(liste)-i-1)))
+    #for i in range(len(liste)):
+     #   liste[i]=(liste[i][0],liste[i][1],fact(len(liste)-1)//(fact(i)*fact(len(liste)-i-1)))
     affiche(liste)
        
     lstpts.append([])
-    lstpts[-1].append(Label(ListePoints,text="Point "+str(indic[-1]-1)+" : x="))
-    lstpts[-1][-1].grid(row=indic[-1],column=1)
+    lstpts[-1].append(Label(ListePoints,text="Point "+str(indic[-1][0]-1)+" : x="))
+    lstpts[-1][-1].grid(row=indic[-1][0],column=1)
     
     lstpts[-1].append(Entry(ListePoints,textvariable=liste[-1][0],width=5))
-    lstpts[-1][-1].grid(row=indic[-1],column=2)
+    lstpts[-1][-1].grid(row=indic[-1][0],column=2)
     
     lstpts[-1].append(Label(ListePoints,text=" y="))
-    lstpts[-1][-1].grid(row=indic[-1],column=3)
+    lstpts[-1][-1].grid(row=indic[-1][0],column=3)
     
     lstpts[-1].append(Entry(ListePoints,textvariable=liste[-1][1],width=5))
-    lstpts[-1][-1].grid(row=indic[-1],column=4)
+    lstpts[-1][-1].grid(row=indic[-1][0],column=4)
 
-    lstpts[-1].append(Button(ListePoints,text="X",command=partial(supprime,indic[-1])))
-    lstpts[-1][-1].grid(row=indic[-1],column=5)
+    lstpts[-1].append(Button(ListePoints,text="X",command=partial(supprime,indic[-1][0])))
+    lstpts[-1][-1].grid(row=indic[-1][0],column=5)
     
 
 def supprime(n):
     if len(liste)>2:
-    
-        m=indic.index(n)
+        for i in range(len(indic)):
+            if indic[i][0]==n:
+                m=i
         del(liste[m])
-    
-        can.delete(n)
-        indic.remove(n)
+        can.delete(indic[m][0])
+        can.delete(indic[m][1])
+        can.delete(indic[m][2])
+        del(indic[m])
         for i in range(4,-1,-1):
             lstpts[m][i].destroy()
         del(lstpts[m])
@@ -169,7 +175,7 @@ def clicdrt(event):
     menu[0].add_command(label="Ajouter un point",command=partial(nvpts,x,y))
     for i in range(len(liste)):
         if sqrt((liste[i][0].get()-x)**2+(liste[i][1].get()-y)**2)<=10:
-            menu[0].add_command(label="Supprimer le point "+str(indic[i]-1),command=partial(supprime,indic[i]))
+            menu[0].add_command(label="Supprimer le point "+str(indic[i][0]-1),command=partial(supprime,indic[i][0]))
     menu[0].post(event.x_root,event.y_root)
 
 def changeType():
@@ -186,6 +192,7 @@ def changeType():
 global rayon
 global fonction
 rayon=10
+rayonTan=5
 
 fonction=[fBezier,fSpline]
 f=0
@@ -229,40 +236,34 @@ Valider.grid(row=2,column=1)
 
 liste=[]
 for i in range(4):
-    liste.append((DoubleVar(),DoubleVar()))
+    liste.append((DoubleVar(),DoubleVar(),DoubleVar(),DoubleVar(),DoubleVar(),DoubleVar()))
 liste[0][0].set(100)
-liste[0][1].set(0)
+liste[0][1].set(50)
+liste[0][2].set(-50)
+liste[0][3].set(0)
+liste[0][4].set(50)
+liste[0][5].set(0)
 liste[1][0].set(200)
-liste[1][1].set(500)
-liste[2][0].set(300)
+liste[1][1].set(450)
+liste[1][2].set(-50)
+liste[1][3].set(0)
+liste[1][4].set(50)
+liste[1][5].set(0)
+liste[2][0].set(250)
 liste[2][1].set(250)
-liste[3][0].set(500)
+liste[2][2].set(-50)
+liste[2][3].set(0)
+liste[2][4].set(50)
+liste[2][5].set(0)
+liste[3][0].set(450)
 liste[3][1].set(100)
-
-indic=[2,3,4,5]
-liste=[(liste[i][0],liste[i][1],fact(len(liste)-1)//(fact(i)*fact(len(liste)-i-1))) for i in range(len(liste))]
+liste[3][2].set(-50)
+liste[3][3].set(0)
+liste[3][4].set(50)
+liste[3][5].set(0)
 
 ListePoints=Frame(Framesettings, padx=5, pady=5)
 ListePoints.grid(row=1)
-
-lstpts=[]
-    
-for i in range(2,len(liste)+2):
-    lstpts.append([])
-    lstpts[-1].append(Label(ListePoints,text="Point "+str(i-1)+" : x="))
-    lstpts[-1][-1].grid(row=i,column=1)
-    
-    lstpts[-1].append(Entry(ListePoints,textvariable=liste[i-2][0],width=5))
-    lstpts[-1][-1].grid(row=i,column=2)
-    
-    lstpts[-1].append(Label(ListePoints,text=" y="))
-    lstpts[-1][-1].grid(row=i,column=3)
-    
-    lstpts[-1].append(Entry(ListePoints,textvariable=liste[i-2][1],width=5))
-    lstpts[-1][-1].grid(row=i,column=4)
-
-    lstpts[-1].append(Button(ListePoints,text="X",command=partial(supprime,i)))
-    lstpts[-1][-1].grid(row=i,column=5)
 
 
 FramePreci=Frame(Framesettings, pady=5)
@@ -297,11 +298,37 @@ varBoucle=IntVar()
 Courbefermee=Checkbutton(FrameSpline, text="Courbe fermée ?", variable=varBoucle, pady=5,command=changeType)
 Courbefermee.grid()
 
-can.create_line(fBezier([(i[0].get(),i[1].get()) for i in liste]),fill="blue",width=2)
+varTangente=IntVar()
+CheckTangentes=Checkbutton(FrameSpline, text="Tangentes manuelles ?", variable=varTangente, pady=5,command=changeType)
+CheckTangentes.grid()
 
+can.create_line(fBezier([(i[0].get(),i[1].get()) for i in liste]),fill="blue",width=2)
+indic=[]
 for i in liste:
-    can.create_oval(i[0].get()-rayon,i[1].get()-rayon,i[0].get()+rayon,i[1].get()+rayon)
-    can.itemconfig(liste.index(i)+2,fill="yellow",outline="red",width=2)
+    p=can.create_oval(i[0].get()-rayon,i[1].get()-rayon,i[0].get()+rayon,i[1].get()+rayon,fill="yellow",outline="red",width=2)
+    t1=can.create_oval(i[0].get()+i[2].get()-rayonTan,i[1].get()+i[3].get()-rayonTan,i[0].get()+i[2].get()+rayonTan,i[1].get()+i[3].get()+rayonTan)
+    t2=can.create_oval(i[0].get()+i[4].get()-rayonTan,i[1].get()+i[5].get()-rayonTan,i[0].get()+i[4].get()+rayonTan,i[1].get()+i[5].get()+rayonTan)
+    indic.append((p,t1,t2))
+    #can.itemconfig(liste.index(i)+2,fill="yellow",outline="red",width=2)
+
+lstpts=[]
+    
+for i in range(2,len(liste)+2):
+    lstpts.append([])
+    lstpts[-1].append(Label(ListePoints,text="Point "+str(indic[i-2][0]-1)+" : x="))
+    lstpts[-1][-1].grid(row=i,column=1)
+    
+    lstpts[-1].append(Entry(ListePoints,textvariable=liste[i-2][0],width=5))
+    lstpts[-1][-1].grid(row=i,column=2)
+    
+    lstpts[-1].append(Label(ListePoints,text=" y="))
+    lstpts[-1][-1].grid(row=i,column=3)
+    
+    lstpts[-1].append(Entry(ListePoints,textvariable=liste[i-2][1],width=5))
+    lstpts[-1][-1].grid(row=i,column=4)
+
+    lstpts[-1].append(Button(ListePoints,text="X",command=partial(supprime,indic[i-2][0])))
+    lstpts[-1][-1].grid(row=i,column=5)
 
 select=IntVar()
 select.set(0)
