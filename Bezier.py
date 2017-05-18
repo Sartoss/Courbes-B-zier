@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter.ttk import Combobox
-from math import sqrt,factorial as fact
+from math import sqrt
 from functools import partial
 from tkinter import messagebox
 
@@ -80,34 +80,56 @@ def fSpline(liste):
     return(tuple(points))
 
 def affiche(liste):
-    #print(liste)
     global can
     global fonction
-    can.coords(1,fonction[CurvType.get()]([(i[0].get(),i[1].get()) for i in liste]))
+    can.coords(1,fonction[CurvType.get()]([(i[0].get(),i[1].get(),i[2].get(),i[3].get(),i[4].get(),i[5].get()) for i in liste]))
 
 def clique(event):
+    global select
     x=event.x
     y=event.y
     while []!=menu:
         menu[0].destroy()
         del(menu[0])
     for i in range(len(liste)):
-        if sqrt((liste[i][0].get()-x)**2+(liste[i][1].get()-y)**2)<=10:
-            global select
-            select.set(i)
+        if sqrt((liste[i][0].get()-x)**2+(liste[i][1].get()-y)**2)<=rayon:
+            select[0].set(i)
+            select[1].set(0)
+            break
+        elif sqrt((liste[i][0].get()+liste[i][2].get()-x)**2+(liste[i][1].get()+liste[i][3].get()-y)**2)<=rayonTan:
+            select[0].set(i)
+            select[1].set(1)
+            break
+        elif sqrt((liste[i][0].get()+liste[i][4].get()-x)**2+(liste[i][1].get()+liste[i][5].get()-y)**2)<=rayonTan:
+            select[0].set(i)
+            select[1].set(2)
             break
 def relache(event):
     global select
-    select.set(-1)
+    select[0].set(-1)
+    select[1].set(-1)
     
 def deplacement(event):
-    if select.get()==-1:return
+    global select
+    if select[0].get()==-1:return
     x=min(max(event.x,0),500)
     y=min(max(event.y,0),500)
-    #lab.config(text="x,y="+str(x)+" , "+str(y)+" "+str(select.get()))
-    liste[select.get()][0].set(x)
-    liste[select.get()][1].set(y)
-    can.coords(indic[select.get()][0],x-10,y-10,x+10,y+10)
+    m=select[0].get()
+    n=select[1].get()
+    if n==0:
+        liste[m][0].set(x)
+        liste[m][1].set(y)
+        can.coords(indic[m][0],x-rayon,y-rayon,x+rayon,y+rayon)
+    else:
+        liste[m][2*n].set(x-liste[m][0].get())
+        liste[m][2*n+1].set(y-liste[m][1].get())
+        can.coords(indic[m][n],x-rayonTan,y-rayonTan,x+rayonTan,y+rayonTan)
+        can.coords(indic[m][n+2],liste[m][0].get(),liste[m][1].get(),liste[m][0].get()+liste[m][2*n].get(),liste[m][1].get()+liste[m][2*n+1].get())
+    if varTangente.get()==1 and n==0:
+        can.coords(indic[m][1],x+liste[m][2].get()-rayonTan,y+liste[m][3].get()-rayonTan,x+liste[m][2].get()+rayonTan,y+liste[m][3].get()+rayonTan)
+        can.coords(indic[m][2],x+liste[m][4].get()-rayonTan,y+liste[m][5].get()-rayonTan,x+liste[m][4].get()+rayonTan,y+liste[m][5].get()+rayonTan)
+        can.coords(indic[m][3],liste[m][0].get(),liste[m][1].get(),liste[m][0].get()+liste[m][2].get(),liste[m][1].get()+liste[m][3].get())
+        can.coords(indic[m][4],liste[m][0].get(),liste[m][1].get(),liste[m][0].get()+liste[m][4].get(),liste[m][1].get()+liste[m][5].get())
     affiche(liste)
 
 def nvpts(x,y):
@@ -115,8 +137,12 @@ def nvpts(x,y):
     if type(y)==IntVar:y=y.get()
     global rayon
     degree.set(len(liste))
-    indic.append((can.create_oval(x-rayon,y-rayon,x+rayon,y+rayon,fill="yellow",outline="red",width=2),can.create_oval(x-50-rayonTan,y-rayonTan,x-50+rayonTan,y+rayonTan),can.create_oval(x+50-rayonTan,y-rayonTan,x+50+rayonTan,y+rayonTan)))
-    #can.itemconfig(indic[-1][0],fill="yellow",outline="red",width=2)
+    indic.append([can.create_oval(x-rayon,y-rayon,x+rayon,y+rayon,fill="yellow",outline="red",width=2),-1,-1,-1,-1])
+    if varTangente.get()==1 and CurvType.get()==1:
+        indic[-1][1]=can.create_oval(x-50-rayonTan,y-rayonTan,x-50+rayonTan,y+rayonTan)
+        indic[-1][2]=can.create_oval(x+50-rayonTan,y-rayonTan,x+50+rayonTan,y+rayonTan)
+        indic[-1][3]=can.create_line(x,y,x-50,y)
+        indic[-1][4]=can.create_line(x,y,x+50,y)
     liste.append((DoubleVar(),DoubleVar(),DoubleVar(),DoubleVar(),DoubleVar(),DoubleVar()))
     liste[-1][0].set(x)
     liste[-1][1].set(y)
@@ -125,8 +151,6 @@ def nvpts(x,y):
     liste[-1][4].set(50)
     liste[-1][5].set(0)
 
-    #for i in range(len(liste)):
-     #   liste[i]=(liste[i][0],liste[i][1],fact(len(liste)-1)//(fact(i)*fact(len(liste)-i-1)))
     affiche(liste)
        
     lstpts.append([])
@@ -153,8 +177,11 @@ def supprime(n):
                 m=i
         del(liste[m])
         can.delete(indic[m][0])
-        can.delete(indic[m][1])
-        can.delete(indic[m][2])
+        if indic[m][1]!=-1:
+            can.delete(indic[m][1])
+            can.delete(indic[m][2])
+            can.delete(indic[m][3])
+            can.delete(indic[m][4])
         del(indic[m])
         for i in range(4,-1,-1):
             lstpts[m][i].destroy()
@@ -187,6 +214,22 @@ def changeType():
         FrameSpline.grid_forget()
         Entrydegre["state"]="disabled"
         degree.set(len(liste)-1)
+    if varTangente.get()==1 and CurvType.get()==1 and indic[0][1]==-1:
+        for i in range(len(liste)):
+            indic[i][1]=can.create_oval(liste[i][0].get()+liste[i][2].get()-rayonTan,liste[i][1].get()+liste[i][3].get()-rayonTan,liste[i][0].get()+liste[i][2].get()+rayonTan,liste[i][1].get()+liste[i][3].get()+rayonTan)
+            indic[i][2]=can.create_oval(liste[i][0].get()+liste[i][4].get()-rayonTan,liste[i][1].get()+liste[i][5].get()-rayonTan,liste[i][0].get()+liste[i][4].get()+rayonTan,liste[i][1].get()+liste[i][5].get()+rayonTan)
+            indic[i][3]=can.create_line(liste[i][0].get(),liste[i][1].get(),liste[i][0].get()+liste[i][2].get(),liste[i][1].get()+liste[i][3].get())
+            indic[i][4]=can.create_line(liste[i][0].get(),liste[i][1].get(),liste[i][0].get()+liste[i][4].get(),liste[i][1].get()+liste[i][5].get())
+    elif (varTangente.get()==0 or CurvType.get()!=1) and indic[0][1]!=-1:
+        for i in range(len(liste)):
+            can.delete(indic[i][1])
+            can.delete(indic[i][2])
+            can.delete(indic[i][3])
+            can.delete(indic[i][4])
+            indic[i][1]=-1
+            indic[i][2]=-1
+            indic[i][3]=-1
+            indic[i][4]=-1
     affiche(liste)
 
 global rayon
@@ -299,17 +342,14 @@ Courbefermee=Checkbutton(FrameSpline, text="Courbe fermée ?", variable=varBoucl
 Courbefermee.grid()
 
 varTangente=IntVar()
-CheckTangentes=Checkbutton(FrameSpline, text="Tangentes manuelles ?", variable=varTangente, pady=5,command=changeType)
-CheckTangentes.grid()
+tangentes=Checkbutton(FrameSpline, text="Tangentes manuelles ?", variable=varTangente, pady=5,command=changeType)
+tangentes.grid()
 
 can.create_line(fBezier([(i[0].get(),i[1].get()) for i in liste]),fill="blue",width=2)
 indic=[]
 for i in liste:
     p=can.create_oval(i[0].get()-rayon,i[1].get()-rayon,i[0].get()+rayon,i[1].get()+rayon,fill="yellow",outline="red",width=2)
-    t1=can.create_oval(i[0].get()+i[2].get()-rayonTan,i[1].get()+i[3].get()-rayonTan,i[0].get()+i[2].get()+rayonTan,i[1].get()+i[3].get()+rayonTan)
-    t2=can.create_oval(i[0].get()+i[4].get()-rayonTan,i[1].get()+i[5].get()-rayonTan,i[0].get()+i[4].get()+rayonTan,i[1].get()+i[5].get()+rayonTan)
-    indic.append((p,t1,t2))
-    #can.itemconfig(liste.index(i)+2,fill="yellow",outline="red",width=2)
+    indic.append([p,-1,-1,-1,-1])
 
 lstpts=[]
     
@@ -330,8 +370,9 @@ for i in range(2,len(liste)+2):
     lstpts[-1].append(Button(ListePoints,text="X",command=partial(supprime,indic[i-2][0])))
     lstpts[-1][-1].grid(row=i,column=5)
 
-select=IntVar()
-select.set(0)
+select=[IntVar(),IntVar()]
+select[0].set(-1)
+select[1].set(-1)
 
 can.bind("<ButtonPress-1>",clique)
 can.bind("<ButtonRelease-1>",relache)
