@@ -1,5 +1,4 @@
 from tkinter import *
-from tkinter.ttk import Combobox
 from math import sqrt
 from functools import partial
 from tkinter import messagebox
@@ -98,20 +97,14 @@ def fSpline(liste):
 def fBspline(liste):
 	n=degree.get()
 	m=len(liste)+n
-	noeud=[]
-	for i in range(n+1):
-		noeud.append(0)
-	for i in range(m-2*n-1):
-		noeud.append(0.5)
-	for i in range(n+1):
-		noeud.append(1)
+	nd=[i.get() for i in noeud]
 	points=[]
-	t=noeud[n]
-	while t<=noeud[m-n]:
+	t=nd[n]
+	while t<=nd[m-n]:
 		x=0
 		y=0
 		for i in range(m-n):
-			a=Bspline(i,n,t,noeud)
+			a=Bspline(i,n,t,nd)
 			x+=a*liste[i][0]
 			y+=a*liste[i][1]
 		points.append(x)
@@ -169,8 +162,8 @@ def relache(event):
 def deplacement(event):
 	global select
 	if select[0].get()==-1:return
-	x=min(max(event.x,0),500)
-	y=min(max(event.y,0),500)
+	x=event.x
+	y=event.y
 	m=select[0].get()
 	n=select[1].get()
 	if n==0:
@@ -193,7 +186,8 @@ def nvpts(x,y):
 	if type(x)==IntVar:x=x.get()
 	if type(y)==IntVar:y=y.get()
 	global rayon
-	degree.set(len(liste))
+	if CurvType.get()==0:
+		degree.set(len(liste))
 	indic.append([can.create_oval(x-rayon,y-rayon,x+rayon,y+rayon,fill="yellow",outline="red",width=2),-1,-1,-1,-1])
 	if varTangente.get()==1 and CurvType.get()==1:
 		indic[-1][1]=can.create_oval(x-50-rayonTan,y-rayonTan,x-50+rayonTan,y+rayonTan)
@@ -207,31 +201,56 @@ def nvpts(x,y):
 	liste[-1][3].set(0)
 	liste[-1][4].set(50)
 	liste[-1][5].set(0)
-
-	affiche(liste)
-	   
+	
+	n=len(liste)-1
+	
 	lstpts.append([])
-	lstpts[-1].append(Label(ListePoints,text="Point "+str(indic[-1][0]-1)+" : x="))
-	lstpts[-1][-1].grid(row=indic[-1][0],column=1)
+	lstpts[-1].append(Label(ListePoints,text="Point "+str(n+1)+" : x="))
+	lstpts[-1][-1].grid(row=n,column=0)
 	
 	lstpts[-1].append(Entry(ListePoints,textvariable=liste[-1][0],width=5))
-	lstpts[-1][-1].grid(row=indic[-1][0],column=2)
+	lstpts[-1][-1].grid(row=n,column=1)
+	lstpts[-1][-1].bind("<Return>",valider)
 	
 	lstpts[-1].append(Label(ListePoints,text=" y="))
-	lstpts[-1][-1].grid(row=indic[-1][0],column=3)
+	lstpts[-1][-1].grid(row=n,column=2)
 	
 	lstpts[-1].append(Entry(ListePoints,textvariable=liste[-1][1],width=5))
-	lstpts[-1][-1].grid(row=indic[-1][0],column=4)
+	lstpts[-1][-1].grid(row=n,column=3)
+	lstpts[-1][-1].bind("<Return>",valider)
 
 	lstpts[-1].append(Button(ListePoints,text="X",command=partial(supprime,indic[-1][0])))
-	lstpts[-1][-1].grid(row=indic[-1][0],column=5)
+	lstpts[-1][-1].grid(row=n,column=4)
 	
+	noeud.append(DoubleVar())
+	d=len(noeud)-len(liste)-1
+	for i in range(d+1):
+		noeud[i].set(0)
+	n=len(noeud)-2*d-2
+	for i in range(n):
+		noeud[i+d+1].set((i+1)/(n+1))
+	for i in range(d+1):
+		noeud[i+d+n+1].set(1)
+	
+	n=len(noeud)-1
+	
+	lstnoeuds.append([])
+	
+	lstnoeuds[-1].append(Label(ListeNoeuds,text="Noeud "+str(n+1)+" :"))
+	lstnoeuds[-1][-1].grid(row=n,column=0)
+	
+	lstnoeuds[-1].append(Entry(ListeNoeuds,textvariable=noeud[-1],width=15))
+	lstnoeuds[-1][-1].grid(row=n,column=1)
+	lstnoeuds[-1][-1].bind("<Return>",valider)
+	
+	affiche(liste)
 
 def supprime(n):
 	if len(liste)>2:
 		for i in range(len(indic)):
 			if indic[i][0]==n:
 				m=i
+				break
 		del(liste[m])
 		can.delete(indic[m][0])
 		if indic[m][1]!=-1:
@@ -243,6 +262,29 @@ def supprime(n):
 		for i in range(4,-1,-1):
 			lstpts[m][i].destroy()
 		del(lstpts[m])
+		for i in range(1,-1,-1):
+			lstnoeuds[-1][i].destroy()
+		del(lstnoeuds[-1])
+		del(noeud[-1])
+		if len(liste)==degree.get():
+			degree.set(len(liste)-1)
+			for i in range(1,-1,-1):
+				lstnoeuds[-1][i].destroy()
+			del(lstnoeuds[-1])
+			del(noeud[-1])
+		d=len(noeud)-len(liste)-1
+		for i in range(d+1):
+			noeud[i].set(0)
+		n=len(noeud)-2*d-2
+		for i in range(n):
+			noeud[i+d+1].set((i+1)/(n+1))
+		for i in range(d+1):
+			noeud[i+d+n+1].set(1)
+		for i in range(m,len(liste)):
+			for j in range(5):
+				lstpts[i][j].grid_forget()
+				lstpts[i][j].grid(row=i,column=j)
+			lstpts[i][0].config(text="Point "+str(i+1)+" : x=")
 		if CurvType.get()==0:
 			degree.set(len(liste)-1)
 		affiche(liste)
@@ -259,7 +301,7 @@ def clicdrt(event):
 	menu[0].add_command(label="Ajouter un point",command=partial(nvpts,x,y))
 	for i in range(len(liste)):
 		if sqrt((liste[i][0].get()-x)**2+(liste[i][1].get()-y)**2)<=10:
-			menu[0].add_command(label="Supprimer le point "+str(indic[i][0]-1),command=partial(supprime,indic[i][0]))
+			menu[0].add_command(label="Supprimer le point "+str(i+1),command=partial(supprime,indic[i][0]))
 	menu[0].post(event.x_root,event.y_root)
 
 def changeType():
@@ -275,6 +317,7 @@ def changeType():
 	elif CurvType.get()==2:
 		FrameBSpline.grid(row=5)
 		Entrydegre["state"]="normal"
+		degree.set(len(noeud)-len(liste)-1)
 	if varTangente.get()==1 and CurvType.get()==1 and indic[0][1]==-1:
 		for i in range(len(liste)):
 			indic[i][1]=can.create_oval(liste[i][0].get()+liste[i][2].get()-rayonTan,liste[i][1].get()+liste[i][3].get()-rayonTan,liste[i][0].get()+liste[i][2].get()+rayonTan,liste[i][1].get()+liste[i][3].get()+rayonTan)
@@ -292,6 +335,19 @@ def changeType():
 			indic[i][3]=-1
 			indic[i][4]=-1
 	affiche(liste)
+
+def valider(event):
+	for i in range(len(liste)):
+		can.coords(indic[i][0],liste[i][0].get()-rayon,liste[i][1].get()-rayon,liste[i][0].get()+rayon,liste[i][1].get()+rayon)
+		if varTangente.get()==1 and CurvType.get()==1:
+			can.coords(indic[i][1],liste[i][0].get()+liste[i][2].get()-rayonTan,liste[i][1].get()+liste[i][3].get()-rayonTan,liste[i][0].get()+liste[i][2].get()+rayonTan,liste[i][1].get()+liste[i][3].get()+rayonTan)
+			can.coords(indic[i][2],liste[i][0].get()+liste[i][4].get()-rayonTan,liste[i][1].get()+liste[i][5].get()-rayonTan,liste[i][0].get()+liste[i][4].get()+rayonTan,liste[i][1].get()+liste[i][5].get()+rayonTan)
+			can.coords(indic[i][3],liste[i][0].get(),liste[i][1].get(),liste[i][0].get()+liste[i][2].get(),liste[i][1].get()+liste[i][3].get())
+			can.coords(indic[i][4],liste[i][0].get(),liste[i][1].get(),liste[i][0].get()+liste[i][4].get(),liste[i][1].get()+liste[i][5].get())
+	affiche(liste)
+
+def changeDegree(event):
+	messagebox.showerror("Erreur","On ne peut pas encore changer le degrée donc c'est à faire :)")
 
 global rayon
 global fonction
@@ -371,6 +427,14 @@ liste[3][3].set(0)
 liste[3][4].set(50)
 liste[3][5].set(0)
 
+noeud=[]
+for i in range(4):
+	noeud.append(DoubleVar())
+	noeud[-1].set(0)
+for i in range(4):
+	noeud.append(DoubleVar())
+	noeud[-1].set(1)
+
 ListePoints=Frame(Framesettings, padx=5, pady=5)
 ListePoints.grid(row=1)
 
@@ -391,7 +455,7 @@ degree=IntVar()
 degree.set(3)
 Entrydegre=Entry(FramePreci, width=10,textvariable=degree,state="disabled")
 Entrydegre.grid(row=1,column=1)
-
+Entrydegre.bind("<Return>",changeDegree)
 
 FrameCurvType=LabelFrame(Framesettings,text="Type de courbe désirée")
 FrameCurvType.grid(row=4)
@@ -414,6 +478,20 @@ tangentes.grid()
 
 FrameBSpline=Frame(Framesettings,pady=5)
 
+ListeNoeuds=Frame(FrameBSpline, padx=5, pady=5)
+ListeNoeuds.grid(row=0,column=0)
+
+lstnoeuds=[]
+for i in range(8):
+	lstnoeuds.append([])
+	
+	lstnoeuds[-1].append(Label(ListeNoeuds,text="Noeud "+str(i+1)+" :"))
+	lstnoeuds[-1][-1].grid(row=i,column=0)
+	
+	lstnoeuds[-1].append(Entry(ListeNoeuds,textvariable=noeud[i],width=15))
+	lstnoeuds[-1][-1].grid(row=i,column=1)
+	lstnoeuds[-1][-1].bind("<Return>",valider)
+
 can.create_line(fBezier([(i[0].get(),i[1].get()) for i in liste]),fill="blue",width=2)
 indic=[]
 for i in liste:
@@ -422,22 +500,24 @@ for i in liste:
 
 lstpts=[]
 	
-for i in range(2,len(liste)+2):
+for i in range(len(liste)):
 	lstpts.append([])
-	lstpts[-1].append(Label(ListePoints,text="Point "+str(indic[i-2][0]-1)+" : x="))
-	lstpts[-1][-1].grid(row=i,column=1)
+	lstpts[-1].append(Label(ListePoints,text="Point "+str(i+1)+" : x="))
+	lstpts[-1][-1].grid(row=i,column=0)
 	
-	lstpts[-1].append(Entry(ListePoints,textvariable=liste[i-2][0],width=5))
-	lstpts[-1][-1].grid(row=i,column=2)
+	lstpts[-1].append(Entry(ListePoints,textvariable=liste[i][0],width=5))
+	lstpts[-1][-1].grid(row=i,column=1)
+	lstpts[-1][-1].bind("<Return>",valider)
 	
 	lstpts[-1].append(Label(ListePoints,text=" y="))
-	lstpts[-1][-1].grid(row=i,column=3)
+	lstpts[-1][-1].grid(row=i,column=2)
 	
-	lstpts[-1].append(Entry(ListePoints,textvariable=liste[i-2][1],width=5))
-	lstpts[-1][-1].grid(row=i,column=4)
+	lstpts[-1].append(Entry(ListePoints,textvariable=liste[i][1],width=5))
+	lstpts[-1][-1].grid(row=i,column=3)
+	lstpts[-1][-1].bind("<Return>",valider)
 
-	lstpts[-1].append(Button(ListePoints,text="X",command=partial(supprime,indic[i-2][0])))
-	lstpts[-1][-1].grid(row=i,column=5)
+	lstpts[-1].append(Button(ListePoints,text="X",command=partial(supprime,indic[i][0])))
+	lstpts[-1][-1].grid(row=i,column=4)
 
 select=[IntVar(),IntVar()]
 select[0].set(-1)
