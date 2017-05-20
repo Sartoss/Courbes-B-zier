@@ -257,17 +257,22 @@ fonction=[fBezier,fSpline]
 f=0
 
 fen=Tk()
+fen.columnconfigure(0,weight=1)
+fen.columnconfigure(1,weight=0)
+fen.rowconfigure(0,weight=1)
 fen.title('Curve drawer')
 fen['bg']='bisque'
 
 FrameCanvas=Frame(fen,padx=5,pady=5,bg='bisque')
-FrameCanvas.grid(row=0,column=0)
+FrameCanvas.grid(row=0,column=0,sticky='nsew')
+FrameCanvas.columnconfigure(0,weight=1)
+FrameCanvas.rowconfigure(0,weight=1)
 
-can=Canvas(FrameCanvas,height=500,width=500,bg="white")
-can.grid()
+can=Canvas(FrameCanvas,bg="white")
+can.grid(row=0,column=0,sticky='nsew')
 
 Framesettings = Frame(fen)
-Framesettings.grid(row=0,column=1,sticky="n",pady=5,padx=5)
+Framesettings.grid(row=0,column=1,sticky='nsew',pady=5,padx=5)
 
 Ajoutpoint=LabelFrame(Framesettings,text="Ajouter un nouveau point", padx=5)
 Ajoutpoint.grid(row=0)
