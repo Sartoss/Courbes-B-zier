@@ -11,11 +11,14 @@ fichier.close()
 fichier=open("parametres.py","r")
 exec(fichier.read())
 fichier.close()
+fichier=open("easterEgg.py","r")
+exec(fichier.read())
+fichier.close()
 
 def affiche(liste):
-	global can
-	global fonction
-	can.coords(1,fonction[CurvType.get()]([(i[0].get(),i[1].get(),i[2].get(),i[3].get(),i[4].get(),i[5].get()) for i in liste]))
+    global can
+    global fonction
+    can.coords(1,fonction[CurvType.get()]([(i[0].get(),i[1].get(),i[2].get(),i[3].get(),i[4].get(),i[5].get()) for i in liste]))
 
 global rayon
 global fonction
@@ -43,7 +46,7 @@ varTangente=IntVar()
 #valeurs par défaut
 x.set(250)
 y.set(250)
-for i in [(100,50),(200,450),(250,250),(450,100)]:
+for i in [(100.0,50.0),(200.0,450.0),(250.0,250.0),(450.0,100.0)]:
     liste.append((DoubleVar(),DoubleVar(),DoubleVar(),DoubleVar(),DoubleVar(),DoubleVar()))
     liste[-1][0].set(i[0])
     liste[-1][1].set(i[1])
@@ -51,11 +54,11 @@ for i in [(100,50),(200,450),(250,250),(450,100)]:
     liste[-1][3].set(0)
     liste[-1][4].set(50)
 for i in range(4):
-	noeud.append(DoubleVar())
-	noeud[-1].set(0)
+    noeud.append(DoubleVar())
+    noeud[-1].set(0)
 for i in range(4):
-	noeud.append(DoubleVar())
-	noeud[-1].set(1)
+    noeud.append(DoubleVar())
+    noeud[-1].set(1)
 degree.set(3)
 CurvType.set(0)
 select[0].set(-1)
@@ -78,8 +81,8 @@ can.grid(row=0,column=0,sticky='nsew')
 can.create_line(fBezier([(i[0].get(),i[1].get()) for i in liste]),fill="blue",width=2)
 
 for i in liste:
-	p=can.create_oval(i[0].get()-rayon,i[1].get()-rayon,i[0].get()+rayon,i[1].get()+rayon,fill="yellow",outline="red",width=2)
-	indic.append([p,-1,-1,-1,-1])
+    p=can.create_oval(i[0].get()-rayon,i[1].get()-rayon,i[0].get()+rayon,i[1].get()+rayon,fill="yellow",outline="red",width=2)
+    indic.append([p,-1,-1,-1,-1])
 
 Framesettings = Frame(fen)
 Framesettings.grid(row=0,column=1,sticky='nsew',pady=5,padx=5)
