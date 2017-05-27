@@ -1,7 +1,7 @@
 from math import sqrt
 
 def fBezier(liste):
-    if sqrt((liste[0][0]-liste[-1][0])**2+(liste[0][1]-liste[-1][1])**2)<=2:
+    if (liste[0][0]-liste[-1][0])**2+(liste[0][1]-liste[-1][1])**2<=4:
         return(liste[0][0],liste[0][1])
     l1=liste.copy()
     l2=liste.copy()
@@ -95,19 +95,31 @@ def fBspline(liste):
     n=degree.get()
     m=len(liste)+n
     nd=[i.get() for i in noeud]
-    points=[]
-    t=nd[n]
-    while t<=nd[m-n]:
-        x=0
-        y=0
+    x0=0
+    y0=0
+    x1=0
+    y1=0
+    for i in range(m-n):
+        a=Bspline(i,n,nd[n],nd)
+        x0+=a*liste[i][0]
+        y0+=a*liste[i][1]
+        a=Bspline(i,n,nd[m-n]-0.00001,nd)
+        x1+=a*liste[i][0]
+        y1+=a*liste[i][1]
+    return(calculBspline(m,n,nd,liste,nd[n],x0,y0,nd[m-n],x1,y1))
+
+def calculBspline(m,n,nd,liste,t0,x0,y0,t2,x2,y2):
+    if (x0-x2)**2+(y0-y2)**2<=4:
+        return(x0,y0)
+    else:
+        t1=(t0+t2)/2
+        x1=0
+        y1=0
         for i in range(m-n):
-            a=Bspline(i,n,t,nd)
-            x+=a*liste[i][0]
-            y+=a*liste[i][1]
-        points.append(x)
-        points.append(y)
-        t+=0.01
-    return(tuple(points))
+            a=Bspline(i,n,t1,nd)
+            x1+=a*liste[i][0]
+            y1+=a*liste[i][1]
+        return(calculBspline(m,n,nd,liste,t0,x0,y0,t1,x1,y1)+calculBspline(m,n,nd,liste,t1,x1,y1,t2,x2,y2))
 
 def Bspline(j,n,t,noeud):
     if n==0:
