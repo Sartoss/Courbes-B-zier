@@ -153,4 +153,34 @@ def valider(event):
     affiche(liste)
 
 def changeDegree(event):
-    messagebox.showerror("Erreur","On ne peut pas encore changer le degrée donc c'est à faire :)")
+    if len(liste)<=degree.get():
+        messagebox.showerror("Erreur","Le degrée doit être strictement inferieur au nombre de points")
+    else:
+        m=len(liste)+degree.get()+1
+        while len(noeud)<m:
+            noeud.append(DoubleVar())
+            
+            n=len(noeud)-1
+            
+            lstnoeuds.append([])
+            
+            lstnoeuds[-1].append(Label(ListeNoeuds,text="Noeud "+str(n+1)+" :"))
+            lstnoeuds[-1][-1].grid(row=n,column=0)
+            
+            lstnoeuds[-1].append(Entry(ListeNoeuds,textvariable=noeud[-1],width=15))
+            lstnoeuds[-1][-1].grid(row=n,column=1)
+            lstnoeuds[-1][-1].bind("<Return>",valider)
+        while len(noeud)>m:
+            for i in range(1,-1,-1):
+                lstnoeuds[-1][i].destroy()
+            del(lstnoeuds[-1])
+            del(noeud[-1])
+        d=len(noeud)-len(liste)-1
+        for i in range(d+1):
+            noeud[i].set(0)
+        n=len(noeud)-2*d-2
+        for i in range(n):
+            noeud[i+d+1].set((i+1)/(n+1))
+        for i in range(d+1):
+            noeud[i+d+n+1].set(1)
+        affiche(liste)
