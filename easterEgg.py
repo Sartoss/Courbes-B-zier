@@ -5,6 +5,7 @@ def easterEgg():
     global lstEE
     global regles
     global temps
+    global zoneBlanche
     if messagebox.askquestion("Easter egg", "En continuant, vous acceptez de nous donnez 20/20 pour ce projet :)\nContinuer ?")=="no":
         return()
     can.unbind("<ButtonPress-1>")
@@ -16,8 +17,10 @@ def easterEgg():
     Framesettings.grid_forget()
     fen.attributes("-fullscreen",1)
     fen.update()
-    regles=Label(fen, text='Evitez les points !', fg = 'red', justify='center', padx=5, pady=5)
-    regles.grid(row=1,column=0)
+    can.config(bg="#ffc0c0")
+    zoneBlanche=can.create_rectangle(0.1*can.winfo_width(),0.1*can.winfo_height(),0.9*can.winfo_width(),0.9*can.winfo_height(),fill="#ffffff",width=0)
+    can.lower(zoneBlanche)
+    messagebox.showinfo("Regles","Deplacez la souris pour eviter les points mais ne touchez pas la zone rouge !")
     lstEE=[[indic[i][0],[[randint(0,can.winfo_width()),randint(0,can.winfo_height())] for j in range(4)]] for i in range(len(liste))]
     for i in range(len(liste)):
         lstEE[i][1][1][0]=liste[i][0].get()
@@ -37,8 +40,13 @@ def easterEgg():
 def deplacementEasterEgg(event):
     global coordX
     global coordY
+    global temps
     coordX=event.x
     coordY=event.y
+    if not (0.1*can.winfo_width()<=coordX<=0.9*can.winfo_width() and 0.1*can.winfo_height()<=coordY<=0.9*can.winfo_height()):
+        temps=int(time()-temps)
+        quitter(None)
+        messagebox.showinfo("Fin","Vous avez perdu en touchant la zone rouge au bout de :\n"+str(temps//60)+"m"+str(temps%60)+"s")
 
 def update():
     global coordX
@@ -81,8 +89,9 @@ def quitter(event):
     can.bind("<ButtonRelease-1>",relache)
     can.bind("<B1-Motion>",deplacement)
     can.bind("<ButtonPress-3>",clicdrt)
+    can.config(bg="#ffffff")
+    can.delete(zoneBlanche)
     Framesettings.grid(row=0,column=1,sticky='nsew',pady=5,padx=5)
-    regles.grid_forget()
     for i in range(len(liste)):
         can.coords(indic[i][0],liste[i][0].get()-rayon,liste[i][1].get()-rayon,liste[i][0].get()+rayon,liste[i][1].get()+rayon)
     for i in range(len(liste),len(lstEE)):
@@ -90,7 +99,7 @@ def quitter(event):
 
 global coordX
 global coordY
-global regles
+global zoneBlanche
 global temps
 
 lstEE=[]
