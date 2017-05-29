@@ -2,8 +2,9 @@ from tkinter import *
 from math import sqrt
 from functools import partial
 from tkinter import messagebox
+
 fichier=open("calcul.py","r")
-exec(fichier.read())
+exec(fichier.read()) #permet de récupérer le contenu du fichier auxiliaire calcul.py
 fichier.close()
 fichier=open("interaction.py","r")
 exec(fichier.read())
@@ -16,6 +17,9 @@ exec(fichier.read())
 fichier.close()
 
 def affiche(liste):
+    """
+    Fonction qui affiche la courbe
+    """
     global can
     global fonction
     can.coords(1,fonction[CurvType.get()]([(i[0].get(),i[1].get(),i[2].get(),i[3].get(),i[4].get(),i[5].get()) for i in liste]))
@@ -23,8 +27,9 @@ def affiche(liste):
 global rayon
 global fonction
 
-fen=Tk()
+fen=Tk() #initialise fen comme une fenêtre Tkinter
 
+#initialisation des variables et des constantes
 rayon=10
 rayonTan=5
 fonction=[fBezier,fSpline,fBspline]
@@ -70,6 +75,7 @@ fen.rowconfigure(0,weight=1)
 fen.title('Curve drawer')
 fen['bg']='bisque'
 
+#place les premiers éléments de la fenêtre
 FrameCanvas=Frame(fen,padx=5,pady=5,bg='bisque')
 FrameCanvas.grid(row=0,column=0,sticky='nsew')
 FrameCanvas.columnconfigure(0,weight=1)
@@ -84,6 +90,7 @@ for i in liste:
     p=can.create_oval(i[0].get()-rayon,i[1].get()-rayon,i[0].get()+rayon,i[1].get()+rayon,fill="yellow",outline="red",width=2)
     indic.append([p,-1,-1,-1,-1])
 
+#crée le menu des paramètres
 Framesettings = Frame(fen)
 Framesettings.grid(row=0,column=1,sticky='nsew',pady=5,padx=5)
 
@@ -108,6 +115,7 @@ Valider.grid(row=2,column=1)
 ListePoints=Frame(Framesettings, padx=5, pady=5)
 ListePoints.grid(row=1)
 
+#crée la liste des points du menu paramètres
 for i in range(len(liste)):
     lstpts.append([])
     lstpts[-1].append(Label(ListePoints,text="Point "+str(i+1)+" : x="))
@@ -161,6 +169,7 @@ FrameBSpline=Frame(Framesettings,pady=5)
 ListeNoeuds=Frame(FrameBSpline, padx=5, pady=5)
 ListeNoeuds.grid(row=0,column=0)
 
+#crée le menu des noeuds pour les B-splines
 for i in range(8):
     lstnoeuds.append([])
     
