@@ -137,3 +137,58 @@ def Bspline(j,n,t,noeud):
         else:
             c=(noeud[j+n+1]-t)*Bspline(j+1,n-1,t,noeud)/(noeud[j+n+1]-noeud[j+1])
         return(a+c)
+
+def fNurbs(liste):
+    n=degree.get()
+    m=len(liste)+n
+    nd=[i.get() for i in noeud]
+    x0=0
+    y0=0
+    c0=0
+    x1=0
+    y1=0
+    c1=0
+    for i in range(m-n):
+        a=Nurbs(i,n,nd[n],nd)
+        x0+=liste[i][6]*a*liste[i][0]
+        y0+=liste[i][6]*a*liste[i][1]
+        c0+=liste[i][6]*a
+        a=Nurbs(i,n,nd[m-n]-0.00001,nd)
+        x1+=liste[i][6]*a*liste[i][0]
+        y1+=liste[i][6]*a*liste[i][1]
+        c1+=liste[i][6]*a
+    return(calculNurbs(m,n,nd,liste,nd[n],x0/c0,y0/c0,nd[m-n],x1/c1,y1/c1))
+
+def calculNurbs(m,n,nd,liste,t0,x0,y0,t2,x2,y2):
+    if (x0-x2)**2+(y0-y2)**2<=4:
+        return(x0,y0)
+    else:
+        t1=(t0+t2)/2
+        x1=0
+        y1=0
+        c1=0
+        for i in range(m-n):
+            a=Nurbs(i,n,t1,nd)
+            x1+=liste[i][6]*a*liste[i][0]
+            y1+=liste[i][6]*a*liste[i][1]
+            c1+=liste[i][6]*a
+        x1/=c1
+        y1/=c1
+        return(calculNurbs(m,n,nd,liste,t0,x0,y0,t1,x1,y1)+calculNurbs(m,n,nd,liste,t1,x1,y1,t2,x2,y2))
+
+def Nurbs(j,n,t,noeud):
+    if n==0:
+        if noeud[j]<=t<noeud[j+1]:
+            return(1)
+        else:
+            return(0)
+    else:
+        if noeud[j+n]==noeud[j]:
+            a=0
+        else:
+            a=(t-noeud[j])*Nurbs(j,n-1,t,noeud)/(noeud[j+n]-noeud[j])
+        if noeud[j+n+1]==noeud[j+1]:
+            c=0
+        else:
+            c=(noeud[j+n+1]-t)*Nurbs(j+1,n-1,t,noeud)/(noeud[j+n+1]-noeud[j+1])
+        return(a+c)
