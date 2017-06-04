@@ -13,13 +13,14 @@ def nvpts(x,y):
         indic[-1][2]=can.create_oval(x+50-rayonTan,y-rayonTan,x+50+rayonTan,y+rayonTan)
         indic[-1][3]=can.create_line(x,y,x-50,y)
         indic[-1][4]=can.create_line(x,y,x+50,y)
-    liste.append((DoubleVar(),DoubleVar(),DoubleVar(),DoubleVar(),DoubleVar(),DoubleVar()))
+    liste.append((DoubleVar(),DoubleVar(),DoubleVar(),DoubleVar(),DoubleVar(),DoubleVar(),DoubleVar()))
     liste[-1][0].set(x)
     liste[-1][1].set(y)
     liste[-1][2].set(-50)
     liste[-1][3].set(0)
     liste[-1][4].set(50)
     liste[-1][5].set(0)
+    liste[-1][6].set(1)
     
     n=len(liste)-1
     
@@ -40,6 +41,13 @@ def nvpts(x,y):
 
     lstpts[-1].append(Button(ListePoints,text="X",command=partial(supprime,indic[-1][0])))
     lstpts[-1][-1].grid(row=n,column=4)
+    
+    lstpts[-1].append(Label(ListePoids,text="poids="))
+    lstpts[-1][-1].grid(row=n,column=0)
+    
+    lstpts[-1].append(Entry(ListePoids,textvariable=liste[-1][6],width=5))
+    lstpts[-1][-1].grid(row=n,column=1,pady=4)
+    lstpts[-1][-1].bind("<Return>",valider)
     
     noeud.append(DoubleVar())
     d=len(noeud)-len(liste)-1
@@ -78,7 +86,7 @@ def supprime(n):
             can.delete(indic[m][3])
             can.delete(indic[m][4])
         del(indic[m])
-        for i in range(4,-1,-1):
+        for i in range(6,-1,-1):
             lstpts[m][i].destroy()
         del(lstpts[m])
         for i in range(1,-1,-1):
@@ -103,6 +111,9 @@ def supprime(n):
             for j in range(5):
                 lstpts[i][j].grid_forget()
                 lstpts[i][j].grid(row=i,column=j)
+            for j in range(2):
+                lstpts[i][j+5].grid_forget()
+                lstpts[i][j+5].grid(row=i,column=j,pady=4)
             lstpts[i][0].config(text="Point "+str(i+1)+" : x=")
         if CurvType.get()==0:
             degree.set(len(liste)-1)
@@ -113,15 +124,21 @@ def supprime(n):
 def changeType():
     FrameSpline.grid_forget()
     FrameBSpline.grid_forget()
+    ListePoids.grid_forget()
     if CurvType.get()==0:
         Entrydegre["state"]="disabled"
         degree.set(len(liste)-1)
     elif CurvType.get()==1:
         FrameSpline.grid(row=5)
-        Entrydegre["state"]="normal"
+        Entrydegre["state"]="disabled"
         degree.set(3)
     elif CurvType.get()==2:
         FrameBSpline.grid(row=5)
+        Entrydegre["state"]="normal"
+        degree.set(len(noeud)-len(liste)-1)
+    elif CurvType.get()==3:
+        FrameBSpline.grid(row=5,columnspan=2)
+        ListePoids.grid(row=1,column=1)
         Entrydegre["state"]="normal"
         degree.set(len(noeud)-len(liste)-1)
     if varTangente.get()==1 and CurvType.get()==1 and indic[0][1]==-1:
