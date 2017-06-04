@@ -22,7 +22,7 @@ def affiche(liste):
     """
     global can
     global fonction
-    can.coords(1,fonction[CurvType.get()]([(i[0].get(),i[1].get(),i[2].get(),i[3].get(),i[4].get(),i[5].get()) for i in liste]))
+    can.coords(1,fonction[CurvType.get()]([(i[0].get(),i[1].get(),i[2].get(),i[3].get(),i[4].get(),i[5].get(),i[6].get()) for i in liste]))
 
 global rayon
 global fonction
@@ -32,7 +32,7 @@ fen=Tk() #initialise fen comme une fenêtre Tkinter
 #initialisation des variables et des constantes
 rayon=10
 rayonTan=5
-fonction=[fBezier,fSpline,fBspline]
+fonction=[fBezier,fSpline,fBspline,fNurbs]
 
 liste=[]
 noeud=[]
@@ -52,12 +52,14 @@ varTangente=IntVar()
 x.set(250)
 y.set(250)
 for i in [(100.0,50.0),(200.0,450.0),(250.0,250.0),(450.0,100.0)]:
-    liste.append((DoubleVar(),DoubleVar(),DoubleVar(),DoubleVar(),DoubleVar(),DoubleVar()))
+    liste.append((DoubleVar(),DoubleVar(),DoubleVar(),DoubleVar(),DoubleVar(),DoubleVar(),DoubleVar()))
     liste[-1][0].set(i[0])
     liste[-1][1].set(i[1])
     liste[-1][2].set(-50)
     liste[-1][3].set(0)
     liste[-1][4].set(50)
+    liste[-1][5].set(0)
+    liste[-1][6].set(1)
 for i in range(4):
     noeud.append(DoubleVar())
     noeud[-1].set(0)
@@ -95,7 +97,7 @@ Framesettings = Frame(fen)
 Framesettings.grid(row=0,column=1,sticky='nsew',pady=5,padx=5)
 
 Ajoutpoint=LabelFrame(Framesettings,text="Ajouter un nouveau point", padx=5)
-Ajoutpoint.grid(row=0)
+Ajoutpoint.grid(row=0,columnspan=2)
 
 ajouteX = Label(Ajoutpoint, text = 'X=', fg = 'black', justify='center', padx=5, pady=5)
 ajouteX.grid(row=0,column=0)
@@ -113,7 +115,10 @@ Valider=Button(Ajoutpoint, text = 'Valider!',command=lambda:nvpts(x,y))
 Valider.grid(row=2,column=1)
 
 ListePoints=Frame(Framesettings, padx=5, pady=5)
-ListePoints.grid(row=1)
+ListePoints.grid(row=1,column=0)
+
+ListePoids=Frame(Framesettings, padx=5, pady=5)
+ListePoids.grid(row=1,column=1)
 
 #crée la liste des points du menu paramètres
 for i in range(len(liste)):
@@ -134,9 +139,16 @@ for i in range(len(liste)):
     
     lstpts[-1].append(Button(ListePoints,text="X",command=partial(supprime,indic[i][0])))
     lstpts[-1][-1].grid(row=i,column=4)
+    
+    lstpts[-1].append(Label(ListePoids,text="poids="))
+    lstpts[-1][-1].grid(row=i,column=0)
+    
+    lstpts[-1].append(Entry(ListePoids,textvariable=liste[i][6],width=5))
+    lstpts[-1][-1].grid(row=i,column=1,pady=4)
+    lstpts[-1][-1].bind("<Return>",valider)
 
 FramePreci=Frame(Framesettings, pady=5)
-FramePreci.grid(row=3)
+FramePreci.grid(row=3,columnspan=2, padx=5, pady=5)
 
 Label(FramePreci,text="Précision de la courbe:").grid(column=0,row=0)
 
@@ -150,11 +162,12 @@ Entrydegre.grid(row=1,column=1)
 Entrydegre.bind("<Return>",changeDegree)
 
 FrameCurvType=LabelFrame(Framesettings,text="Type de courbe désirée")
-FrameCurvType.grid(row=4)
+FrameCurvType.grid(row=4,columnspan=2)
 
 Radiobutton(FrameCurvType, text="Bézier", variable=CurvType, value=0, command=changeType).grid(row=0)
 Radiobutton(FrameCurvType, text="Spline", variable=CurvType, value=1, command=changeType).grid(row=1)
 Radiobutton(FrameCurvType, text="B-Spline", variable=CurvType, value=2, command=changeType).grid(row=2)
+Radiobutton(FrameCurvType, text="Nurbs", variable=CurvType, value=3, command=changeType).grid(row=3)
 
 FrameSpline=Frame(Framesettings,pady=5)
 
