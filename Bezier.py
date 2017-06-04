@@ -118,7 +118,6 @@ ListePoints=Frame(Framesettings, padx=5, pady=5)
 ListePoints.grid(row=1,column=0)
 
 ListePoids=Frame(Framesettings, padx=5, pady=5)
-ListePoids.grid(row=1,column=1)
 
 #crée la liste des points du menu paramètres
 for i in range(len(liste)):
