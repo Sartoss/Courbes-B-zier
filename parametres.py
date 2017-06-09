@@ -200,4 +200,3 @@ def changeDegree(event):
             noeud[i+d+1].set((i+1)/(n+1))
         for i in range(d+1):
             noeud[i+d+n+1].set(1)
-        affiche(liste)
