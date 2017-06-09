@@ -12,9 +12,9 @@ fichier.close()
 fichier=open("parametres.py","r")
 exec(fichier.read())
 fichier.close()
-#fichier=open("easterEgg.py","r")
-#exec(fichier.read())
-#fichier.close()
+fichier=open("easterEgg.py","r")
+exec(fichier.read())
+fichier.close()
 
 def affiche(liste):
     """
