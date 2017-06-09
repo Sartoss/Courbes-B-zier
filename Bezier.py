@@ -12,17 +12,21 @@ fichier.close()
 fichier=open("parametres.py","r")
 exec(fichier.read())
 fichier.close()
-fichier=open("easterEgg.py","r")
-exec(fichier.read())
-fichier.close()
+#fichier=open("easterEgg.py","r")
+#exec(fichier.read())
+#fichier.close()
 
 def affiche(liste):
     """
     Fonction qui affiche la courbe
     """
-    global can
-    global fonction
-    can.coords(1,fonction[CurvType.get()]([(i[0].get(),i[1].get(),i[2].get(),i[3].get(),i[4].get(),i[5].get(),i[6].get()) for i in liste]))
+    l=[]
+    for i in liste:
+        a=convp(i[0].get(),i[1].get())
+        b=convp(i[2].get(),i[3].get())
+        c=convp(i[4].get(),i[5].get())
+        l.append((a[0],a[1],b[0],b[1],c[0],c[1],i[6].get()))
+    can.coords(1,fonction[CurvType.get()](l))
 
 global rayon
 global fonction
@@ -47,11 +51,15 @@ degree=IntVar()
 CurvType=IntVar()
 varBoucle=IntVar()
 varTangente=IntVar()
+xrep=DoubleVar()
+yrep=DoubleVar()
+ang=DoubleVar()
+zoom=DoubleVar()
 
 #valeurs par défaut
 x.set(250)
 y.set(250)
-for i in [(100.0,50.0),(200.0,450.0),(250.0,250.0),(450.0,100.0)]:
+for i in [(1.0,0.5),(-2.0,-4.5),(2.5,2.5),(4.5,1)]:
     liste.append((DoubleVar(),DoubleVar(),DoubleVar(),DoubleVar(),DoubleVar(),DoubleVar(),DoubleVar()))
     liste[-1][0].set(i[0])
     liste[-1][1].set(i[1])
@@ -71,6 +79,11 @@ CurvType.set(0)
 select[0].set(-1)
 select[1].set(-1)
 
+xrep.set(100)
+yrep.set(100)
+ang.set(0)
+zoom.set(50)
+
 fen.columnconfigure(0,weight=1)
 fen.columnconfigure(1,weight=0)
 fen.rowconfigure(0,weight=1)
@@ -87,9 +100,16 @@ can=Canvas(FrameCanvas,height=500,width=500,bg="white")
 can.grid(row=0,column=0,sticky='nsew')
 
 can.create_line(fBezier([(i[0].get(),i[1].get()) for i in liste]),fill="blue",width=2)
+rep=convp(0,0)
+a=convp(1,0)
+b=convp(0,1)
+can.create_line(rep[0],rep[1],a[0],a[1],fill="red",width=2,arrow=LAST)
+can.create_line(rep[0],rep[1],b[0],b[1],fill="green",width=2,arrow=LAST)
+
 
 for i in liste:
-    p=can.create_oval(i[0].get()-rayon,i[1].get()-rayon,i[0].get()+rayon,i[1].get()+rayon,fill="yellow",outline="red",width=2)
+    i=convp(i[0].get(),i[1].get())
+    p=can.create_oval(i[0]-rayon,i[1]-rayon,i[0]+rayon,i[1]+rayon,fill="yellow",outline="red",width=2)
     indic.append([p,-1,-1,-1,-1])
 
 #crée le menu des paramètres
@@ -191,6 +211,8 @@ for i in range(8):
     lstnoeuds[-1].append(Entry(ListeNoeuds,textvariable=noeud[i],width=15))
     lstnoeuds[-1][-1].grid(row=i,column=1)
     lstnoeuds[-1][-1].bind("<Return>",valider)
+
+affiche(liste)
 
 can.bind("<ButtonPress-1>",clique)
 can.bind("<ButtonRelease-1>",relache)
