@@ -1,4 +1,4 @@
-from math import sqrt
+from math import *
 
 def fBezier(liste):
     if (liste[0][0]-liste[-1][0])**2+(liste[0][1]-liste[-1][1])**2<=4:
@@ -192,3 +192,15 @@ def Nurbs(j,n,t,noeud):
         else:
             c=(noeud[j+n+1]-t)*Nurbs(j+1,n-1,t,noeud)/(noeud[j+n+1]-noeud[j+1])
         return(a+c)
+        
+def convp(x,y):
+    a=atan2(y,x)+ang.get()
+    d=sqrt(x**2+y**2)
+    x=d*cos(a)
+    y=d*sin(a)
+    return(x*zoom.get()+xrep.get(),-y*zoom.get()+yrep.get())
+
+def convr(x,y):
+    x=(x-xrep.get())/zoom.get()
+    y=(yrep.get()-y)/zoom.get()
+    return(x,y)
