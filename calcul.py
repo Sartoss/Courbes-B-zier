@@ -87,8 +87,6 @@ def fSpline(liste):
                         points.append(a1*t**3+b1*t**2+tax*t+liste[i][0])
                         points.append(a2*t**3+b2*t**2+tay*t+liste[i][1])
                         t+=0.01
-            points.append(liste[-1][0])
-            points.append(liste[-1][1])
     return(tuple(points))
 
 def fBspline(liste):
@@ -203,4 +201,6 @@ def convp(x,y):
 def convr(x,y):
     x=(x-xrep.get())/zoom.get()
     y=(yrep.get()-y)/zoom.get()
-    return(x,y)
+    a=atan2(y,x)-ang.get()
+    d=sqrt(x**2+y**2)
+    return(d*cos(a),d*sin(a))
