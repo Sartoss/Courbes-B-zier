@@ -1,8 +1,9 @@
 def nvpts(x,y):
     global rayon
-    x=x.get()
-    y=y.get()
-    if x==y==42:
+    X=x.get()
+    Y=y.get()
+    x,y=convp(X,Y)
+    if X==Y==42:
         easterEgg()
         return()
     if CurvType.get()==0:
@@ -14,11 +15,11 @@ def nvpts(x,y):
         indic[-1][3]=can.create_line(x,y,x-50,y)
         indic[-1][4]=can.create_line(x,y,x+50,y)
     liste.append((DoubleVar(),DoubleVar(),DoubleVar(),DoubleVar(),DoubleVar(),DoubleVar(),DoubleVar()))
-    liste[-1][0].set(x)
-    liste[-1][1].set(y)
-    liste[-1][2].set(-50)
+    liste[-1][0].set(X)
+    liste[-1][1].set(Y)
+    liste[-1][2].set(-1)
     liste[-1][3].set(0)
-    liste[-1][4].set(50)
+    liste[-1][4].set(1)
     liste[-1][5].set(0)
     liste[-1][6].set(1)
     
@@ -129,24 +130,27 @@ def changeType():
         Entrydegre["state"]="disabled"
         degree.set(len(liste)-1)
     elif CurvType.get()==1:
-        FrameSpline.grid(row=5)
+        FrameSpline.grid(row=6)
         Entrydegre["state"]="disabled"
         degree.set(3)
     elif CurvType.get()==2:
-        FrameBSpline.grid(row=5)
+        FrameBSpline.grid(row=6)
         Entrydegre["state"]="normal"
         degree.set(len(noeud)-len(liste)-1)
     elif CurvType.get()==3:
-        FrameBSpline.grid(row=5,columnspan=2)
+        FrameBSpline.grid(row=6,columnspan=2)
         ListePoids.grid(row=1,column=1)
         Entrydegre["state"]="normal"
         degree.set(len(noeud)-len(liste)-1)
     if varTangente.get()==1 and CurvType.get()==1 and indic[0][1]==-1:
         for i in range(len(liste)):
-            indic[i][1]=can.create_oval(liste[i][0].get()+liste[i][2].get()-rayonTan,liste[i][1].get()+liste[i][3].get()-rayonTan,liste[i][0].get()+liste[i][2].get()+rayonTan,liste[i][1].get()+liste[i][3].get()+rayonTan)
-            indic[i][2]=can.create_oval(liste[i][0].get()+liste[i][4].get()-rayonTan,liste[i][1].get()+liste[i][5].get()-rayonTan,liste[i][0].get()+liste[i][4].get()+rayonTan,liste[i][1].get()+liste[i][5].get()+rayonTan)
-            indic[i][3]=can.create_line(liste[i][0].get(),liste[i][1].get(),liste[i][0].get()+liste[i][2].get(),liste[i][1].get()+liste[i][3].get())
-            indic[i][4]=can.create_line(liste[i][0].get(),liste[i][1].get(),liste[i][0].get()+liste[i][4].get(),liste[i][1].get()+liste[i][5].get())
+            a=convp(liste[i][0].get(),liste[i][1].get())
+            b=convp(liste[i][0].get()+liste[i][2].get(),liste[i][1].get()+liste[i][3].get())
+            c=convp(liste[i][0].get()+liste[i][4].get(),liste[i][1].get()+liste[i][5].get())
+            indic[i][1]=can.create_oval(b[0]-rayonTan,b[1]-rayonTan,b[0]+rayonTan,b[1]+rayonTan)
+            indic[i][2]=can.create_oval(c[0]-rayonTan,c[1]-rayonTan,c[0]+rayonTan,c[1]+rayonTan)
+            indic[i][3]=can.create_line(a[0],a[1],b[0],b[1])
+            indic[i][4]=can.create_line(a[0],a[1],c[0],c[1])
     elif (varTangente.get()==0 or CurvType.get()!=1) and indic[0][1]!=-1:
         for i in range(len(liste)):
             can.delete(indic[i][1])
@@ -161,17 +165,25 @@ def changeType():
 
 def valider(event):
     for i in range(len(liste)):
-        can.coords(indic[i][0],liste[i][0].get()-rayon,liste[i][1].get()-rayon,liste[i][0].get()+rayon,liste[i][1].get()+rayon)
+        a=convp(liste[i][0].get(),liste[i][1].get())
+        can.coords(indic[i][0],a[0]-rayon,a[1]-rayon,a[0]+rayon,a[1]+rayon)
         if varTangente.get()==1 and CurvType.get()==1:
-            can.coords(indic[i][1],liste[i][0].get()+liste[i][2].get()-rayonTan,liste[i][1].get()+liste[i][3].get()-rayonTan,liste[i][0].get()+liste[i][2].get()+rayonTan,liste[i][1].get()+liste[i][3].get()+rayonTan)
-            can.coords(indic[i][2],liste[i][0].get()+liste[i][4].get()-rayonTan,liste[i][1].get()+liste[i][5].get()-rayonTan,liste[i][0].get()+liste[i][4].get()+rayonTan,liste[i][1].get()+liste[i][5].get()+rayonTan)
-            can.coords(indic[i][3],liste[i][0].get(),liste[i][1].get(),liste[i][0].get()+liste[i][2].get(),liste[i][1].get()+liste[i][3].get())
-            can.coords(indic[i][4],liste[i][0].get(),liste[i][1].get(),liste[i][0].get()+liste[i][4].get(),liste[i][1].get()+liste[i][5].get())
+            b=convp(liste[i][0].get()+liste[i][2].get(),liste[i][1].get()+liste[i][3].get())
+            c=convp(liste[i][0].get()+liste[i][4].get(),liste[i][1].get()+liste[i][5].get())
+            can.coords(indic[i][1],b[0]-rayonTan,b[1]-rayonTan,b[0]+rayonTan,b[1]+rayonTan)
+            can.coords(indic[i][2],c[0]-rayonTan,c[1]-rayonTan,c[0]+rayonTan,c[1]+rayonTan)
+            can.coords(indic[i][3],a[0],a[1],b[0],b[1])
+            can.coords(indic[i][4],a[0],a[1],c[0],c[1])
+    rep=convp(0,0)
+    a=convp(1,0)
+    b=convp(0,1)
+    can.coords(2,rep[0],rep[1],a[0],a[1])
+    can.coords(3,rep[0],rep[1],b[0],b[1])
     affiche(liste)
 
 def changeDegree(event):
     if len(liste)<=degree.get():
-        messagebox.showerror("Erreur","Le degrée doit être strictement inferieur au nombre de points")
+        messagebox.showerror("Erreur","Le degree doit etre strictement inferieur au nombre de points")
     else:
         m=len(liste)+degree.get()+1
         while len(noeud)<m:
@@ -200,3 +212,4 @@ def changeDegree(event):
             noeud[i+d+1].set((i+1)/(n+1))
         for i in range(d+1):
             noeud[i+d+n+1].set(1)
+        affiche(liste)
