@@ -19,15 +19,30 @@ def clique(event):
             select[0].set(i)
             select[1].set(2)
             break
-    print(select[0].get(),select[1].get())
+    if select[0].get()==-1:
+        select[0].set(-2)
+        if transRot.get()==0:
+            select[2].set(xrep.get()-x)
+            select[3].set(yrep.get()-y)
+        else:
+            select[2].set(ang.get()-atan2((yrep.get()-y)/zoom.get(),(x-xrep.get())/zoom.get()))
+
 def relache(event):
     global select
     select[0].set(-1)
-    select[1].set(-1)
     
 def deplacement(event):
     global select
-    if select[0].get()==-1:return
+    if select[0].get()==-1:
+        return
+    if select[0].get()==-2:
+        if transRot.get()==0:
+            xrep.set(event.x+select[2].get())
+            yrep.set(event.y+select[3].get())
+        else:
+            ang.set(atan2((yrep.get()-event.y)/zoom.get(),(event.x-xrep.get())/zoom.get())+select[2].get())
+        valider(None)
+        return
     x=event.x
     y=event.y
     X,Y=convr(x,y)
@@ -39,29 +54,48 @@ def deplacement(event):
         liste[m][1].set(Y)
         can.coords(indic[m][0],x-rayon,y-rayon,x+rayon,y+rayon)
     else:
-        liste[m][2*n].set(x-liste[m][0].get())
-        liste[m][2*n+1].set(y-liste[m][1].get())
+        liste[m][2*n].set(X-liste[m][0].get())
+        liste[m][2*n+1].set(Y-liste[m][1].get())
         b=convp(liste[m][0].get()+liste[m][2*n].get(),liste[m][1].get()+liste[m][2*n+1].get())
         can.coords(indic[m][n],x-rayonTan,y-rayonTan,x+rayonTan,y+rayonTan)
         can.coords(indic[m][n+2],a[0],a[1],b[0],b[1])
     if varTangente.get()==1 and n==0:
-        b=convp(liste[m][2].get(),liste[m][3].get())
-        c=convp(liste[m][4].get(),liste[m][5].get())
-        can.coords(indic[m][1],x+b[0]-rayonTan,y+b[1]-rayonTan,x+b[0]+rayonTan,y+b[1]+rayonTan)
-        can.coords(indic[m][2],x+c[0]-rayonTan,y+c[1]-rayonTan,x+c[0]+rayonTan,y+c[1]+rayonTan)
-        can.coords(indic[m][3],a[0],a[1],a[0]+b[0],a[1]+b[1])
-        can.coords(indic[m][4],a[0],a[1],a[0]+c[0],a[1]+c[1])
+        b=convp(liste[m][0].get()+liste[m][2].get(),liste[m][1].get()+liste[m][3].get())
+        c=convp(liste[m][0].get()+liste[m][4].get(),liste[m][1].get()+liste[m][5].get())
+        can.coords(indic[m][1],b[0]-rayonTan,b[1]-rayonTan,b[0]+rayonTan,b[1]+rayonTan)
+        can.coords(indic[m][2],c[0]-rayonTan,c[1]-rayonTan,c[0]+rayonTan,c[1]+rayonTan)
+        can.coords(indic[m][3],a[0],a[1],b[0],b[1])
+        can.coords(indic[m][4],a[0],a[1],c[0],c[1])
     affiche(liste)
 
 def clicdrt(event):
-    x.set(event.x)
-    y.set(event.y)
+    X,Y=convr(event.x,event.y)
+    x.set(X)
+    y.set(Y)
     if []!=menu:
         menu[0].destroy()
         del(menu[0])
     menu.append(Menu(can,tearoff=0))
     menu[0].add_command(label="Ajouter un point",command=partial(nvpts,x,y))
     for i in range(len(liste)):
-        if sqrt((liste[i][0].get()-x.get())**2+(liste[i][1].get()-y.get())**2)<=10:
+        if sqrt((liste[i][0].get()-X)**2+(liste[i][1].get()-Y)**2)<=rayon/zoom.get():
             menu[0].add_command(label="Supprimer le point "+str(i+1),command=partial(supprime,indic[i][0]))
     menu[0].post(event.x_root,event.y_root)
+
+def molette(event):
+    zoom.set(zoom.get()*1.1**(event.delta/120))
+    valider(None)
+
+def clavier(event):
+    t=event.keysym
+    if t=="Up":
+        yrep.set(yrep.get()-2)
+    elif t=="Right":
+        xrep.set(xrep.get()+2)
+    elif t=="Down":
+        yrep.set(yrep.get()+2)
+    elif t=="Left":
+        xrep.set(xrep.get()-2)
+    else:
+        return
+    valider(None)
