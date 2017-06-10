@@ -23,10 +23,13 @@ def affiche(liste):
     l=[]
     for i in liste:
         a=convp(i[0].get(),i[1].get())
-        b=convp(i[2].get(),i[3].get())
-        c=convp(i[4].get(),i[5].get())
-        l.append((a[0],a[1],b[0],b[1],c[0],c[1],i[6].get()))
-    can.coords(1,fonction[CurvType.get()](l))
+        b=convp(i[0].get()+i[2].get(),i[1].get()+i[3].get())
+        c=convp(i[0].get()+i[4].get(),i[1].get()+i[5].get())
+        l.append((a[0],a[1],b[0]-a[0],b[1]-a[1],c[0]-a[0],c[1]-a[1],i[6].get()))
+    l=fonction[CurvType.get()](l)
+    if CurvType.get()!=1 or varBoucle.get()!=1:
+        l+=(a[0],a[1])
+    can.coords(1,l)
 
 global rayon
 global fonction
@@ -44,10 +47,11 @@ indic=[]
 menu=[]
 lstpts=[]
 lstnoeuds=[]
-select=[IntVar(),IntVar()]
+select=[IntVar(),IntVar(),DoubleVar(),DoubleVar()]
 x=DoubleVar()
 y=DoubleVar()
 degree=IntVar()
+transRot=IntVar()
 CurvType=IntVar()
 varBoucle=IntVar()
 varTangente=IntVar()
@@ -57,15 +61,15 @@ ang=DoubleVar()
 zoom=DoubleVar()
 
 #valeurs par défaut
-x.set(250)
-y.set(250)
-for i in [(1.0,0.5),(-2.0,-4.5),(2.5,2.5),(4.5,1)]:
+x.set(0)
+y.set(0)
+for i in [(-4.0,0.0),(-2.0,-4.0),(4.0,4.0),(1.5,-3.5)]:
     liste.append((DoubleVar(),DoubleVar(),DoubleVar(),DoubleVar(),DoubleVar(),DoubleVar(),DoubleVar()))
     liste[-1][0].set(i[0])
     liste[-1][1].set(i[1])
-    liste[-1][2].set(-50)
+    liste[-1][2].set(-1)
     liste[-1][3].set(0)
-    liste[-1][4].set(50)
+    liste[-1][4].set(1)
     liste[-1][5].set(0)
     liste[-1][6].set(1)
 for i in range(4):
@@ -75,12 +79,12 @@ for i in range(4):
     noeud.append(DoubleVar())
     noeud[-1].set(1)
 degree.set(3)
+transRot.set(0)
 CurvType.set(0)
 select[0].set(-1)
 select[1].set(-1)
-
-xrep.set(100)
-yrep.set(100)
+xrep.set(250)
+yrep.set(250)
 ang.set(0)
 zoom.set(50)
 
@@ -103,9 +107,8 @@ can.create_line(fBezier([(i[0].get(),i[1].get()) for i in liste]),fill="blue",wi
 rep=convp(0,0)
 a=convp(1,0)
 b=convp(0,1)
-can.create_line(rep[0],rep[1],a[0],a[1],fill="red",width=2,arrow=LAST)
-can.create_line(rep[0],rep[1],b[0],b[1],fill="green",width=2,arrow=LAST)
-
+can.create_line(rep[0],rep[1],a[0],a[1],fill="red",width=2,arrow="last")
+can.create_line(rep[0],rep[1],b[0],b[1],fill="green",width=2,arrow="last")
 
 for i in liste:
     i=convp(i[0].get(),i[1].get())
@@ -169,19 +172,26 @@ for i in range(len(liste)):
 FramePreci=Frame(Framesettings, pady=5)
 FramePreci.grid(row=3,columnspan=2, padx=5, pady=5)
 
-Label(FramePreci,text="Précision de la courbe:").grid(column=0,row=0)
-
-ChoixPreci=Entry(FramePreci, width=10)
-ChoixPreci.grid(column=1,row=0)
-
-Label(FramePreci, text="Degré de la courbe: ").grid(column=0,row=1)
+Label(FramePreci, text="Degré de la courbe :").grid(column=0,row=1)
 
 Entrydegre=Entry(FramePreci, width=10,textvariable=degree,state="disabled")
 Entrydegre.grid(row=1,column=1)
 Entrydegre.bind("<Return>",changeDegree)
 
+FrameTransRot=Frame(Framesettings)
+FrameTransRot.grid(row=4,columnspan=2)
+
+Radiobutton(FrameTransRot, text="Translation", variable=transRot, value=0).grid(row=0,column=0)
+Radiobutton(FrameTransRot, text="Rotation", variable=transRot, value=1).grid(row=0,column=1)
+
+Label(FrameTransRot,text="Zoom (px) :").grid(row=1,column=0)
+
+EntryZoom=Entry(FrameTransRot,textvariable=zoom)
+EntryZoom.grid(row=1,column=1)
+EntryZoom.bind("<Return>",valider)
+
 FrameCurvType=LabelFrame(Framesettings,text="Type de courbe désirée")
-FrameCurvType.grid(row=4,columnspan=2)
+FrameCurvType.grid(row=5,columnspan=2)
 
 Radiobutton(FrameCurvType, text="Bézier", variable=CurvType, value=0, command=changeType).grid(row=0)
 Radiobutton(FrameCurvType, text="Spline", variable=CurvType, value=1, command=changeType).grid(row=1)
@@ -218,5 +228,7 @@ can.bind("<ButtonPress-1>",clique)
 can.bind("<ButtonRelease-1>",relache)
 can.bind("<B1-Motion>",deplacement)
 can.bind("<ButtonPress-3>",clicdrt)
+fen.bind("<MouseWheel>",molette)
+fen.bind("<KeyPress>",clavier)
 
 fen.mainloop()
