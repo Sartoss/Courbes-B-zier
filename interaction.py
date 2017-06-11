@@ -83,7 +83,11 @@ def clicdrt(event):
     menu[0].post(event.x_root,event.y_root)
 
 def molette(event):
-    zoom.set(zoom.get()*1.1**(event.delta/120))
+    a=convr(event.x,event.y)
+    zoom.set(zoom.get()*1.1**(event.delta//120))
+    a=convp(a[0],a[1])
+    xrep.set(xrep.get()+event.x-a[0])
+    yrep.set(yrep.get()+event.y-a[1])
     valider(None)
 
 def clavier(event):
