@@ -94,7 +94,7 @@ def supprime(n):
             lstnoeuds[-1][i].destroy()
         del(lstnoeuds[-1])
         del(noeud[-1])
-        if len(liste)==degree.get():
+        if 2*len(liste)==len(noeud)-1:
             degree.set(len(liste)-1)
             for i in range(1,-1,-1):
                 lstnoeuds[-1][i].destroy()
@@ -213,3 +213,21 @@ def changeDegree(event):
         for i in range(d+1):
             noeud[i+d+n+1].set(1)
         affiche(liste)
+
+def centrer():
+    xmin=xmax=liste[0][0].get()
+    ymin=ymax=liste[0][1].get()
+    for i in liste:
+        if i[0].get()<xmin:
+            xmin=i[0].get()
+        elif i[0].get()>xmax:
+            xmax=i[0].get()
+        if i[1].get()<ymin:
+            ymin=i[1].get()
+        elif i[1].get()>ymax:
+            ymax=i[1].get()
+    zoom.set(min(can.winfo_width()/(xmax-xmin),can.winfo_height()/(ymax-ymin))/1.1)
+    xrep.set((can.winfo_width()-(xmin+xmax)*zoom.get())/2)
+    yrep.set((can.winfo_height()+(ymin+ymax)*zoom.get())/2)
+    ang.set(0)
+    valider(None)
