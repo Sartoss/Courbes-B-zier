@@ -23,8 +23,7 @@ def easterEgg():
     messagebox.showinfo("Regles","Deplacez la souris pour eviter les points mais ne touchez pas la zone rouge !")
     lstEE=[[indic[i][0],[[randint(0,can.winfo_width()),randint(0,can.winfo_height())] for j in range(4)]] for i in range(len(liste))]
     for i in range(len(liste)):
-        lstEE[i][1][1][0]=liste[i][0].get()
-        lstEE[i][1][1][1]=liste[i][1].get()
+        lstEE[i][1][1][0],lstEE[i][1][1][1]=convp(liste[i][0].get(),liste[i][1].get())
     for i in lstEE:
         tax=i[1][2][0]-i[1][0][0]
         tay=i[1][2][1]-i[1][0][1]
@@ -93,7 +92,8 @@ def quitter(event):
     can.delete(zoneBlanche)
     Framesettings.grid(row=0,column=1,sticky='nsew',pady=5,padx=5)
     for i in range(len(liste)):
-        can.coords(indic[i][0],liste[i][0].get()-rayon,liste[i][1].get()-rayon,liste[i][0].get()+rayon,liste[i][1].get()+rayon)
+        a=convp(liste[i][0].get(),liste[i][1].get())
+        can.coords(indic[i][0],a[0]-rayon,a[1]-rayon,a[0]+rayon,a[1]+rayon)
     for i in range(len(liste),len(lstEE)):
         can.delete(lstEE[i][0])
 
