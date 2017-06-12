@@ -1,4 +1,7 @@
 def clique(event):
+    """
+    Fonction qui gere le clic gauche
+    """
     global select
     x=event.x
     y=event.y
@@ -32,6 +35,9 @@ def relache(event):
     select[0].set(-1)
     
 def deplacement(event):
+    """
+    Fonction qui gere le déplacement des items sur le canvas
+    """
     global select
     if select[0].get()==-1:
         return
@@ -69,6 +75,9 @@ def deplacement(event):
     affiche(liste)
 
 def clicdrt(event):
+    """
+    Fonction qui gere le clic droit
+    """
     X,Y=convr(event.x,event.y)
     x.set(X)
     y.set(Y)
@@ -82,24 +91,36 @@ def clicdrt(event):
             menu[0].add_command(label="Supprimer le point "+str(i+1),command=partial(supprime,indic[i][0]))
     menu[0].post(event.x_root,event.y_root)
 
-def molette(event):
+def molette(os,event):
+    """
+    Fonction qui gere la molette selon l'OS
+    """
     a=convr(event.x,event.y)
-    zoom.set(zoom.get()*1.1**(event.delta//120))
+    if system()=="Windows":
+        zoom.set(zoom.get()*1.1**(event.delta//120))
+    elif system()=="Linux":
+        if os=="Lu":
+            zoom.set(zoom.get()*1.1)
+        else:
+            zoom.set(zoom.get()/1.1)
     a=convp(a[0],a[1])
     xrep.set(xrep.get()+event.x-a[0])
     yrep.set(yrep.get()+event.y-a[1])
     valider(None)
 
 def clavier(event):
+    """
+    Fonction qui gere les translations par le clavier
+    """
     t=event.keysym
     if t=="Up":
-        yrep.set(yrep.get()-2)
+        yrep.set(yrep.get()-10)
     elif t=="Right":
-        xrep.set(xrep.get()+2)
+        xrep.set(xrep.get()+10)
     elif t=="Down":
-        yrep.set(yrep.get()+2)
+        yrep.set(yrep.get()+10)
     elif t=="Left":
-        xrep.set(xrep.get()-2)
+        xrep.set(xrep.get()-10)
     else:
         return
     valider(None)
