@@ -71,7 +71,7 @@ def fSpline(liste):
                     tx=liste[i+1][0]-liste[i-1][0]
                     ty=liste[i+1][1]-liste[i-1][1]
                     a1=liste[i][0]/2-liste[i+1][0]/2+tx/2
-                    bFonction qui calcule les Splines1=-3*liste[i][0]/2+3*liste[i+1][0]/2-3*tx/2
+                    b1=-3*liste[i][0]/2+3*liste[i+1][0]/2-3*tx/2
                     a2=liste[i][1]/2-liste[i+1][1]/2+ty/2
                     b2=-3*liste[i][1]/2+3*liste[i+1][1]/2-3*ty/2
                     t=0
