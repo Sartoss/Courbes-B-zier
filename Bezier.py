@@ -2,6 +2,7 @@ from tkinter import *
 from math import sqrt
 from functools import partial
 from tkinter import messagebox
+from platform import system
 
 fichier=open("calcul.py","r")
 exec(fichier.read()) #permet de récupérer le contenu du fichier auxiliaire calcul.py
@@ -190,6 +191,9 @@ EntryZoom=Entry(FrameTransRot,textvariable=zoom)
 EntryZoom.grid(row=1,column=1)
 EntryZoom.bind("<Return>",valider)
 
+ButtonCentrer=Button(FrameTransRot,text="Centrer", command=centrer)
+ButtonCentrer.grid(row=2,column=0,columnspan=2)
+
 FrameCurvType=LabelFrame(Framesettings,text="Type de courbe désirée")
 FrameCurvType.grid(row=5,columnspan=2)
 
@@ -228,7 +232,11 @@ can.bind("<ButtonPress-1>",clique)
 can.bind("<ButtonRelease-1>",relache)
 can.bind("<B1-Motion>",deplacement)
 can.bind("<ButtonPress-3>",clicdrt)
-fen.bind("<MouseWheel>",molette)
+if system()=="Windows":
+    fen.bind("<MouseWheel>",partial(molette,"W"))
+elif system()=="Linux":
+    fen.bind("<Button-4>",partial(molette,"Lu"))
+    fen.bind("<Button-5>",partial(molette,"Ld"))
 fen.bind("<KeyPress>",clavier)
 
 fen.mainloop()
