@@ -1,6 +1,9 @@
 from math import *
 
 def fBezier(liste):
+    """
+    Fonction qui calcule la courbe de Bezier
+    """
     if (liste[0][0]-liste[-1][0])**2+(liste[0][1]-liste[-1][1])**2<=4:
         return(liste[0][0],liste[0][1])
     l1=liste.copy()
@@ -13,6 +16,9 @@ def fBezier(liste):
     return(fBezier(l1)+fBezier(l2))
 
 def fSpline(liste):
+    """
+    Fonction qui calcule les Splines
+    """
     if len(liste)==2:
         return(liste[0][0],liste[0][1],liste[1][0],liste[1][1])
     points=[]
@@ -65,7 +71,7 @@ def fSpline(liste):
                     tx=liste[i+1][0]-liste[i-1][0]
                     ty=liste[i+1][1]-liste[i-1][1]
                     a1=liste[i][0]/2-liste[i+1][0]/2+tx/2
-                    b1=-3*liste[i][0]/2+3*liste[i+1][0]/2-3*tx/2
+                    bFonction qui calcule les Splines1=-3*liste[i][0]/2+3*liste[i+1][0]/2-3*tx/2
                     a2=liste[i][1]/2-liste[i+1][1]/2+ty/2
                     b2=-3*liste[i][1]/2+3*liste[i+1][1]/2-3*ty/2
                     t=0
@@ -90,6 +96,9 @@ def fSpline(liste):
     return(tuple(points))
 
 def fBspline(liste):
+    """
+    Fonction qui calcule les B-Splines
+    """
     n=degree.get()
     m=len(liste)+n
     nd=[i.get() for i in noeud]
@@ -107,6 +116,9 @@ def fBspline(liste):
     return(calculBspline(m,n,nd,liste,nd[n],x0,y0,nd[m-n],x1,y1))
 
 def calculBspline(m,n,nd,liste,t0,x0,y0,t2,x2,y2):
+    """
+    Fonction intermediaire utilisee par fBspline
+    """
     if (x0-x2)**2+(y0-y2)**2<=4:
         return(x0,y0)
     else:
@@ -120,6 +132,9 @@ def calculBspline(m,n,nd,liste,t0,x0,y0,t2,x2,y2):
         return(calculBspline(m,n,nd,liste,t0,x0,y0,t1,x1,y1)+calculBspline(m,n,nd,liste,t1,x1,y1,t2,x2,y2))
 
 def Bspline(j,n,t,noeud):
+    """
+    Fonction intermediaire utilisee par fBspline et calculBspline
+    """
     if n==0:
         if noeud[j]<=t<noeud[j+1]:
             return(1)
@@ -137,6 +152,9 @@ def Bspline(j,n,t,noeud):
         return(a+c)
 
 def fNurbs(liste):
+    """
+    Fonction qui calcule les Nurbs
+    """
     n=degree.get()
     m=len(liste)+n
     nd=[i.get() for i in noeud]
@@ -158,6 +176,9 @@ def fNurbs(liste):
     return(calculNurbs(m,n,nd,liste,nd[n],x0/c0,y0/c0,nd[m-n],x1/c1,y1/c1))
 
 def calculNurbs(m,n,nd,liste,t0,x0,y0,t2,x2,y2):
+    """
+    Fonction intermediaire utilisee par fNurbs
+    """
     if (x0-x2)**2+(y0-y2)**2<=4:
         return(x0,y0)
     else:
@@ -175,6 +196,9 @@ def calculNurbs(m,n,nd,liste,t0,x0,y0,t2,x2,y2):
         return(calculNurbs(m,n,nd,liste,t0,x0,y0,t1,x1,y1)+calculNurbs(m,n,nd,liste,t1,x1,y1,t2,x2,y2))
 
 def Nurbs(j,n,t,noeud):
+    """
+    Fonction intermediaire utilisee par fNurbs et calculNurbs
+    """
     if n==0:
         if noeud[j]<=t<noeud[j+1]:
             return(1)
@@ -192,6 +216,9 @@ def Nurbs(j,n,t,noeud):
         return(a+c)
         
 def convp(x,y):
+    """
+    Fonction qui convertit les coordonnees d'un point du repere en coordonnees du canvas
+    """
     a=atan2(y,x)+ang.get()
     d=sqrt(x**2+y**2)
     x=d*cos(a)
@@ -199,6 +226,9 @@ def convp(x,y):
     return(x*zoom.get()+xrep.get(),-y*zoom.get()+yrep.get())
 
 def convr(x,y):
+    """
+    Fonction qui convertit les coordonnees d'un point du canvas en coordonnees du repere
+    """
     x=(x-xrep.get())/zoom.get()
     y=(yrep.get()-y)/zoom.get()
     a=atan2(y,x)-ang.get()
