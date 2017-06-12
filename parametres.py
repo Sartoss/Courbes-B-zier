@@ -1,4 +1,7 @@
 def nvpts(x,y):
+    """
+    Ajoute un point à la liste et le trace sur le canvas
+    """
     global rayon
     X=x.get()
     Y=y.get()
@@ -74,6 +77,9 @@ def nvpts(x,y):
     affiche(liste)
 
 def supprime(n):
+    """
+    Supprime un point de la liste et du canvas
+    """
     if len(liste)>2:
         for i in range(len(indic)):
             if indic[i][0]==n:
@@ -123,6 +129,9 @@ def supprime(n):
         messagebox.showerror("Erreur","Il ne peut pas y avoir moins de deux points")
 
 def changeType():
+    """
+    Fonction qui gere le changement de type de courbe
+    """
     FrameSpline.grid_forget()
     FrameBSpline.grid_forget()
     ListePoids.grid_forget()
@@ -164,6 +173,9 @@ def changeType():
     affiche(liste)
 
 def valider(event):
+    """
+    Fonction qui gere l'actualisation de la courbe et des points sur le canvas
+    """
     for i in range(len(liste)):
         a=convp(liste[i][0].get(),liste[i][1].get())
         can.coords(indic[i][0],a[0]-rayon,a[1]-rayon,a[0]+rayon,a[1]+rayon)
@@ -182,8 +194,11 @@ def valider(event):
     affiche(liste)
 
 def changeDegree(event):
+    """
+    Fonction qui gere le changement de degre
+    """
     if len(liste)<=degree.get():
-        messagebox.showerror("Erreur","Le degree doit etre strictement inferieur au nombre de points")
+        messagebox.showerror("Erreur","Le degre doit etre strictement inferieur au nombre de points")
     else:
         m=len(liste)+degree.get()+1
         while len(noeud)<m:
@@ -215,6 +230,9 @@ def changeDegree(event):
         affiche(liste)
 
 def centrer():
+    """
+    Fonction qui repositionne la caméra de façon à voir tous les points
+    """
     xmin=xmax=liste[0][0].get()
     ymin=ymax=liste[0][1].get()
     for i in liste:
